@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}La editorial culinaria{% endblock %}</title>
+    <title>{% block title %}{{ site_name }}{% endblock %}</title>
     <!-- Tailwind & Fonts -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -46,7 +46,7 @@
 <!-- Navbar público -->
 <nav class="fixed top-0 w-full z-50 bg-[#fbf9f4]/80 backdrop-blur-xl border-b border-[#f5f3ee]">
     <div class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
-        <a href="{{ url_for('main.index') }}" class="font-newsreader italic text-2xl text-[#1B3022]">La editorial culinaria</a>
+        <a href="{{ url_for('main.index') }}" class="font-newsreader italic text-2xl text-[#1B3022]">{{ site_name }}</a>
         <div class="hidden md:flex items-center gap-8 font-label text-xs uppercase tracking-[0.2em]">
             <a href="{{ url_for('main.carta') }}" class="text-[#1B3022] hover:text-[#775a19] transition-colors {% if request.endpoint == 'main.carta' %}border-b border-[#775a19] pb-1{% endif %}">Menú</a>
             <a href="#" class="text-[#1B3022] hover:text-[#775a19] transition-colors">Ofertas</a>
@@ -64,7 +64,7 @@
                     <span class="text-sm text-primary hidden md:inline">{{ current_user.username }}</span>
                     <a href="{{ url_for('auth.logout') }}" class="text-primary text-sm hover:underline">Cerrar sesión</a>
                     {% if current_user.is_admin %}
-                    <a href="{{ url_for('admin.gestion_pedidos') }}" class="bg-secondary text-white px-3 py-1 rounded text-xs">Admin</a>
+                    <a href="{{ url_for('admin.dashboard') }}" class="bg-secondary text-white px-3 py-1 rounded text-xs">Admin</a>
                     {% endif %}
                 </div>
             {% else %}
@@ -100,10 +100,15 @@
 <footer class="w-full bg-[#f5f3ee] border-t border-outline-variant/10 mt-16">
     <div class="flex flex-col md:flex-row justify-between items-center px-12 py-8 w-full max-w-screen-2xl mx-auto gap-4">
         <div class="mb-4 md:mb-0 text-center md:text-left">
-            <span class="font-newsreader text-lg text-[#1B3022]">La editorial culinaria</span>
+            <span class="font-newsreader text-lg text-[#1B3022]">{{ site_name }}</span>
             <p class="font-body text-[10px] tracking-tight text-[#1B3022]/70 uppercase mt-1">
-                © 2026 La editorial culinaria. Infiweb reservados todos los derechos.
+                © 2026 {{ site_name }}. Todos los derechos reservados.
             </p>
+            {% if address or phone %}
+            <p class="font-body text-[10px] tracking-tight text-[#1B3022]/50 uppercase mt-1">
+                {{ address }}{% if address and phone %} | {% endif %}{{ phone }}
+            </p>
+            {% endif %}
         </div>
         <div class="flex flex-wrap justify-center gap-6 font-body text-[10px] uppercase tracking-[0.1em]">
             <a href="#" class="text-[#1B3022]/70 hover:text-[#775a19] transition">Diario</a>

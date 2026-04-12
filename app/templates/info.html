@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Location & Contact | Verdant Hearth{% endblock %}
+{% block title %}Ubicación & Contacto | {{ site_name }}{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -38,7 +38,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
             <div class="lg:col-span-7">
                 <span class="font-label text-xs uppercase tracking-[0.2em] text-secondary mb-4 block font-bold">Visitanos</span>
-                <h1 class="text-6xl md:text-8xl font-headline italic tracking-tighter leading-none mb-8">Hogar Artesanal</h1>
+                <h1 class="text-6xl md:text-8xl font-headline italic tracking-tighter leading-none mb-8">{{ site_name }}</h1>
                 <p class="text-xl md:text-2xl text-on-surface/80 max-w-xl font-light leading-relaxed">
                     Donde la harina, el agua y el fuego se encuentran para crear algo extraordinario. Únase a nosotros en nuestro taller bañado por el sol.
                 </p>
@@ -69,7 +69,7 @@
                     <div class="bg-surface p-4 shadow-xl rounded-lg border border-outline-variant/30 max-w-[220px]">
                         <span class="material-symbols-outlined text-secondary text-2xl mb-1">location_on</span>
                         <h3 class="text-xl font-headline mb-1">Cunco Centro</h3>
-                        <p class="text-[10px] text-on-surface/70 uppercase tracking-wider">Cunco, Región de la Araucanía</p>
+                        <p class="text-[10px] text-on-surface/70 uppercase tracking-wider">{{ address }}</p>
                     </div>
                 </div>
             </div>
@@ -102,7 +102,7 @@
                         <div class="space-y-8">
                             <div class="flex items-start gap-4">
                                 <span class="material-symbols-outlined text-secondary">call</span>
-                                <div><h4 class="text-[10px] uppercase tracking-widest font-bold text-on-surface/50 mb-1">Teléfono</h4><p class="text-xl font-headline tracking-tight">+1 (555) 829-1920</p></div>
+                                <div><h4 class="text-[10px] uppercase tracking-widest font-bold text-on-surface/50 mb-1">Teléfono</h4><p class="text-xl font-headline tracking-tight">{{ phone }}</p></div>
                             </div>
                             <div class="flex items-start gap-4">
                                 <span class="material-symbols-outlined text-secondary">mail</span>

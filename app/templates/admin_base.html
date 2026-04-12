@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - {% block title %}La editorial culinaria{% endblock %}</title>
+    <title>Admin - {% block title %}{{ site_name }}{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
@@ -38,7 +38,7 @@
     <!-- Sidebar -->
     <aside class="flex flex-col w-64 h-screen p-4 space-y-2 bg-[#1B3022] text-[#fbf9f4] shadow-xl shrink-0 sticky top-0">
         <div class="mb-8 px-2">
-            <h1 class="font-newsreader text-xl mb-1">La editorial culinaria</h1>
+            <h1 class="font-newsreader text-xl mb-1">{{ site_name }}</h1>
             <p class="text-xs text-[#fbf9f4]/60 uppercase tracking-widest">Portal de gestión</p>
             <div class="flex items-center gap-3 mt-6">
                 <div class="w-10 h-10 rounded-full bg-white/10 overflow-hidden">
