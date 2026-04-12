@@ -19,9 +19,9 @@ with app.app_context():
     
     # Productos (ejemplos)
     productos = [
-        Product(name='Wild Yeast Sourdough', description='Fermentado 48h...', price=12.00, 
+        Product(name='Masa Madre De Levadura Salvaje', description='Fermentado 48h...', price=12.00, 
                 category=cat_comida, is_signature=True, image_url='...'),
-        Product(name='Heirloom Garden Plate', price=18.50, category=cat_comida),
+        Product(name='Plato de jardín reliquia', price=18.50, category=cat_comida, description='Una mezcla de verduras frescas...', image_url='...'),
         # ... agregar los demás
     ]
     db.session.add_all(productos)

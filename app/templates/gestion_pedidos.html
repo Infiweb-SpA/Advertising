@@ -4,49 +4,49 @@
 
 {% block content %}
 <header class="mb-10">
-    <span class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Live Operations</span>
-    <h2 class="text-4xl font-headline italic tracking-tight text-primary mt-2">Order Management</h2>
-    <p class="text-primary/60 font-body mt-2">Oversee floor service and takeaway queue efficiency.</p>
+    <span class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Operaciones en vivo</span>
+    <h2 class="text-4xl font-headline italic tracking-tight text-primary mt-2">Gestión de pedidos</h2>
+    <p class="text-primary/60 font-body mt-2">Supervisar el servicio de piso y la eficiencia de las colas de comida para llevar.</p>
 </header>
 
 <!-- Stats Overview (simulado) -->
 <div class="grid grid-cols-12 gap-6 mb-10">
     <div class="col-span-12 md:col-span-8 bg-surface-container p-8 rounded-lg flex justify-between items-end relative overflow-hidden border border-outline/30">
         <div class="relative z-10">
-            <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Active Capacity</p>
+            <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Capacidad activa</p>
             <p class="text-6xl font-headline italic mt-2 text-primary">{{ active_orders_count or 0 }} <span class="text-2xl not-italic text-outline">/ 32</span></p>
-            <p class="text-sm text-primary/70 mt-4">Simultaneous orders across floor and kitchen.</p>
+            <p class="text-sm text-primary/70 mt-4">Pedidos simultáneos en el piso y la cocina.</p>
         </div>
         <div class="absolute right-0 top-0 w-1/3 h-full bg-gradient-to-l from-secondary/5 to-transparent"></div>
     </div>
     <div class="col-span-12 md:col-span-4 bg-primary p-8 rounded-lg text-on-primary shadow-lg">
-        <p class="text-[10px] uppercase tracking-widest font-bold opacity-70">Kitchen Pulse</p>
-        <p class="text-xl font-headline mt-4 leading-snug">Average course interval is 18 minutes.</p>
-        <div class="mt-6 flex items-center gap-2"><span class="material-symbols-outlined text-sm">trending_up</span><span class="text-xs font-medium uppercase">Steady Flow</span></div>
+        <p class="text-[10px] uppercase tracking-widest font-bold opacity-70">Pulso de cocina</p>
+        <p class="text-xl font-headline mt-4 leading-snug">El intervalo medio del curso es de 18 minutos.</p>
+        <div class="mt-6 flex items-center gap-2"><span class="material-symbols-outlined text-sm">trending_up</span><span class="text-xs font-medium uppercase">Flujo constante</span></div>
     </div>
 </div>
 
 <!-- Tabs -->
 <div class="mb-6 flex border-b border-outline/30">
-    <button class="px-6 py-3 text-sm font-bold tracking-tight active-tab">TABLE ORDERS</button>
-    <button class="px-6 py-3 text-sm font-medium text-primary/50 hover:text-primary">TAKEAWAY ORDERS</button>
+    <button class="px-6 py-3 text-sm font-bold tracking-tight active-tab">PEDIDOS DE MESA</button>
+    <button class="px-6 py-3 text-sm font-medium text-primary/50 hover:text-primary">PEDIDOS PARA LLEVAR</button>
 </div>
 
 <!-- Table Orders -->
 <div class="bg-white rounded-lg border border-outline/30 overflow-hidden shadow-sm">
     <div class="px-6 py-4 bg-surface-container/50 flex justify-between items-center">
-        <div class="flex items-center gap-4"><span class="flex h-2 w-2 rounded-full bg-secondary animate-pulse"></span><span class="font-bold text-[10px] text-primary uppercase tracking-widest">Live Table Status</span></div>
+        <div class="flex items-center gap-4"><span class="flex h-2 w-2 rounded-full bg-secondary animate-pulse"></span><span class="font-bold text-[10px] text-primary uppercase tracking-widest">Estado en vivo de la mesa</span></div>
         <div class="relative">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
-            <input class="bg-surface border border-outline/50 text-xs pl-10 pr-4 py-2 rounded w-64" placeholder="Filter by Table..." type="text">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">Buscar</span>
+            <input class="bg-surface border border-outline/50 text-xs pl-10 pr-4 py-2 rounded w-64" placeholder="Filtrar por mesa..." type="text">
         </div>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-left">
             <thead>
                 <tr class="bg-surface-container">
-                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Table</th>
-                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Items Ordered</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Mesa</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Artículos pedidos</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-center">Status</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-right">Timer</th>
                 </tr>
@@ -57,7 +57,7 @@
                     <td class="px-6 py-5">
                         <div class="flex items-center gap-3">
                             <span class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">{{ order.table.number if order.table else '?' }}</span>
-                            <span class="font-bold text-primary">Table {{ order.table.number if order.table else 'N/A' }}</span>
+                            <span class="font-bold text-primary">Mesa {{ order.table.number if order.table else 'N/A' }}</span>
                         </div>
                     </td>
                     <td class="px-6 py-5">
@@ -79,20 +79,20 @@
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="4" class="px-6 py-8 text-center text-primary/50">No active dine-in orders.</td></tr>
+                <tr><td colspan="4" class="px-6 py-8 text-center text-primary/50">No hay pedidos activos para cenar.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     <div class="px-6 py-4 bg-surface-container/20 flex justify-center">
-        <button class="text-primary/40 text-[10px] font-bold uppercase tracking-[0.2em] hover:text-secondary">View All Seated Tables</button>
+        <button class="text-primary/40 text-[10px] font-bold uppercase tracking-[0.2em] hover:text-secondary">Ver todas las mesas ocupadas</button>
     </div>
 </div>
 
 <!-- Footer -->
 <footer class="mt-20 pt-12 pb-8 border-t border-outline/30 flex flex-col md:flex-row justify-between items-center text-[10px] uppercase tracking-widest text-primary/50">
-    <div class="font-newsreader text-lg text-primary normal-case italic">the culinary editorial</div>
-    <div class="my-4 md:my-0">© 2024 The Culinary Editorial. All Rights Reserved.</div>
-    <div class="flex gap-6"><a href="#" class="hover:text-secondary">Privacy</a><a href="#" class="hover:text-secondary">Terms</a></div>
+    <div class="font-newsreader text-lg text-primary normal-case italic">La editorial culinaria</div>
+    <div class="my-4 md:my-0">© 2024 La editorial culinaria. Infiweb Todos los derechos reservados.</div>
+    <div class="flex gap-6"><a href="#" class="hover:text-secondary">Privacidad</a><a href="#" class="hover:text-secondary">Terminos</a></div>
 </footer>
 {% endblock %}

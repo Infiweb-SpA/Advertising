@@ -6,7 +6,7 @@
 <main class="pt-8 pb-32 px-6 max-w-7xl mx-auto">
     <header class="mb-12 text-center">
         <h1 class="text-5xl md:text-7xl font-headline italic tracking-tight text-primary mb-6">Your Order</h1>
-        <p class="text-on-surface/70 max-w-2xl mx-auto font-body text-lg">Review your selections before sending to the kitchen.</p>
+        <p class="text-on-surface/70 max-w-2xl mx-auto font-body text-lg">Revise sus selecciones antes de enviarlas a la cocina.</p>
     </header>
 
     <div class="max-w-3xl mx-auto">
@@ -21,7 +21,7 @@
                         </div>
                         <div class="flex items-center gap-4">
                             <span class="font-semibold">${{ "%.2f"|format(item.price * item.quantity) }}</span>
-                            <a href="{{ url_for('main.remove_from_cart', product_id=product_id) }}" class="text-red-500 text-sm hover:underline">Remove</a>
+                            <a href="{{ url_for('main.remove_from_cart', product_id=product_id) }}" class="text-red-500 text-sm hover:underline">Eliminar</a>
                         </div>
                     </div>
                     {% endfor %}
@@ -36,20 +36,20 @@
 
             <div class="mt-8 space-y-4">
                 <div>
-                    <label class="block text-xs uppercase tracking-widest font-bold text-on-surface/60 mb-2" for="table-number">Table Number (for dine-in)</label>
+                    <label class="block text-xs uppercase tracking-widest font-bold text-on-surface/60 mb-2" for="table-number">Número de mesa (para comedor)</label>
                     <input class="w-full bg-surface border-outline/20 focus:ring-primary focus:border-primary rounded px-3 py-3 text-sm" id="table-number" placeholder="Enter table #" type="text" />
                 </div>
                 <button id="submit-cart-order" class="w-full bg-primary text-on-primary py-4 rounded font-label font-bold uppercase tracking-widest text-sm hover:bg-secondary transition-all shadow-lg">
-                    Send Order to Kitchen
+                    Enviar pedido a cocina
                 </button>
-                <p class="text-xs text-center text-on-surface/50 italic">Ordering only. Payment at the end of your visit.</p>
+                <p class="text-xs text-center text-on-surface/50 italic">Solo se puede realizar pedidos. El pago se procesará al final de su visita.</p>
             </div>
         {% else %}
             <div class="text-center py-16 bg-surface-container/30 rounded-lg">
-                <span class="material-symbols-outlined text-6xl text-primary/30 mb-4">restaurant</span>
-                <h2 class="text-2xl font-headline italic text-primary/60">Your cart is empty</h2>
-                <p class="text-on-surface/50 mt-2">Add some delicious items from our menu.</p>
-                <a href="{{ url_for('main.carta') }}" class="mt-6 inline-block bg-primary text-on-primary px-8 py-3 rounded font-label text-sm uppercase tracking-widest hover:bg-secondary transition">Browse Menu</a>
+                <span class="material-symbols-outlined text-6xl text-primary/30 mb-4">restaurante</span>
+                <h2 class="text-2xl font-headline italic text-primary/60">Tu carrito está vacío</h2>
+                <p class="text-on-surface/50 mt-2">Agrega algunos elementos deliciosos de nuestro menú.</p>
+                <a href="{{ url_for('main.carta') }}" class="mt-6 inline-block bg-primary text-on-primary px-8 py-3 rounded font-label text-sm uppercase tracking-widest hover:bg-secondary transition">Explorar Menú</a>
             </div>
         {% endif %}
     </div>

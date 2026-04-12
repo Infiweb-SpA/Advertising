@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}The Tasting Menu | Verdant Hearth{% endblock %}
+{% block title %}El Menú Degustación | Hogar verde{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -39,11 +39,11 @@
     <!-- Menu Section -->
     <div class="flex-grow">
         <header class="mb-12 text-center lg:text-left">
-            <span class="label-md uppercase tracking-[0.2em] text-primary mb-4 block font-label font-semibold">Verdant Hearth</span>
-            <h1 class="text-5xl md:text-7xl font-headline italic tracking-tight text-on-surface mb-6">The Tasting Menu</h1>
+            <span class="label-md uppercase tracking-[0.2em] text-primary mb-4 block font-label font-semibold">Hogar verde</span>
+            <h1 class="text-5xl md:text-7xl font-headline italic tracking-tight text-on-surface mb-6">El Menú Degustación</h1>
             <p class="text-on-surface/70 max-w-2xl font-body text-lg leading-relaxed">
-                A curated selection of seasonal ingredients, crafted with patience and precision.
-                Experience the heritage of fire and grain.
+                Una selección curada de ingredientes estacionales, elaborada con paciencia y precisión.
+                Experimenta el legado del fuego y del grano.
             </p>
         </header>
 
@@ -64,10 +64,10 @@
                         alt="{{ product.name }}"
                         src="{{ product.image_url or 'https://lh3.googleusercontent.com/aida-public/AB6AXuAm2lGaL2KqPfdMA5pgTSRtvQwq_3GojL5DAZ2vy_KVDbvy-ff62JkY__ciAH3ATV3Q2e68TD08aWG_Zj933GFcmmtSmHaVWDIsnb83MACbm1cAYVcIHm-XaElxB8pUWR_9ZAt0pQfQ4U5uDBiyDPvqgBToeaZtsJLYxpIJB7gnsbFhdJkcb8TOn2ii9pdXdpbd0xWX4-M-25JOCs0j0tmA_vCmBEQkyzRQIIkLZwz6Nt2S0Mn02Mr9xYGGjRSddijXciE_hTUQzMs4' }}" />
                     {% if product.is_signature %}
-                    <div class="absolute top-4 left-4 bg-secondary text-on-primary px-3 py-1 rounded text-[10px] font-label font-bold tracking-wider uppercase">Signature</div>
+                    <div class="absolute top-4 left-4 bg-secondary text-on-primary px-3 py-1 rounded text-[10px] font-label font-bold tracking-wider uppercase">Firma</div>
                     {% endif %}
                     {% if product.is_offer %}
-                    <div class="absolute top-4 right-4 bg-primary text-on-primary px-3 py-1 rounded text-[10px] font-label font-bold tracking-wider uppercase">Offer</div>
+                    <div class="absolute top-4 right-4 bg-primary text-on-primary px-3 py-1 rounded text-[10px] font-label font-bold tracking-wider uppercase">Oferta</div>
                     {% endif %}
                 </div>
                 <div class="flex justify-between items-start mb-2">
@@ -79,11 +79,11 @@
                 </p>
                 <button data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" data-product-price="{{ product.price }}"
                     class="add-to-cart-btn mt-auto w-full py-3 border border-primary text-primary hover:bg-primary hover:text-on-primary transition-colors font-label font-semibold text-sm flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-lg">add</span> Add to Order
+                    <span class="material-symbols-outlined text-lg">add</span> Agregar al pedido
                 </button>
             </div>
             {% else %}
-            <p class="col-span-2 text-center text-on-surface/50">No products available at the moment.</p>
+            <p class="col-span-2 text-center text-on-surface/50">no hay productos disponibles en este momento.</p>
             {% endfor %}
         </div>
     </div>
@@ -91,14 +91,14 @@
     <!-- Order Summary Sidebar -->
     <aside class="lg:w-80 shrink-0">
         <div class="sticky top-32 bg-surface-container rounded-lg p-6 shadow-sm border border-outline/10">
-            <h2 class="text-2xl font-headline italic mb-6 text-primary">Order to Table</h2>
+            <h2 class="text-2xl font-headline italic mb-6 text-primary">Orden a la mesa</h2>
             <div id="cart-items-container" class="space-y-4 mb-8">
                 <!-- Los items del carrito se insertarán aquí con JavaScript -->
-                <p class="text-sm text-on-surface/50 text-center py-4">Your order is empty</p>
+                <p class="text-sm text-on-surface/50 text-center py-4">Tu pedido está vacío</p>
             </div>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-[10px] uppercase tracking-widest font-bold text-on-surface/60 mb-2" for="table-number">Table Number</label>
+                    <label class="block text-[10px] uppercase tracking-widest font-bold text-on-surface/60 mb-2" for="table-number">Número de mesa</label>
                     <input class="w-full bg-surface border-outline/20 focus:ring-primary focus:border-primary rounded px-3 py-2 text-sm" id="table-number" placeholder="Enter table #" type="text" />
                 </div>
                 <div class="pt-4 border-t border-outline/20">
@@ -108,10 +108,10 @@
                     </div>
                     <button id="submit-order-btn"
                         class="w-full bg-primary text-on-primary py-4 rounded font-label font-bold uppercase tracking-widest text-xs hover:bg-secondary transition-all shadow-lg active:scale-[0.98]">
-                        Send Order to Kitchen
+                        Enviar pedido a cocina
                     </button>
                     <p class="text-[10px] text-center text-on-surface/50 mt-4 leading-relaxed italic">
-                        Ordering only. Payment will be processed at the end of your visit.
+                        Solo se puede realizar pedidos. El pago se procesará al final de su visita.
                     </p>
                 </div>
             </div>
@@ -121,7 +121,7 @@
 
 <!-- Mobile Order Toggle (FAB) -->
 <button id="mobile-cart-toggle" class="lg:hidden fixed bottom-8 right-8 bg-primary text-on-primary w-16 h-16 rounded-full flex items-center justify-center shadow-2xl active:scale-95 transition-transform z-40">
-    <span class="material-symbols-outlined text-2xl">restaurant</span>
+    <span class="material-symbols-outlined text-2xl">restaurante</span>
     <span id="mobile-cart-count" class="absolute -top-1 -right-1 bg-secondary text-white w-6 h-6 rounded-full text-[10px] flex items-center justify-center font-bold">0</span>
 </button>
 {% endblock %}
@@ -144,7 +144,7 @@
 
         const items = Object.values(cart);
         if (items.length === 0) {
-            container.innerHTML = '<p class="text-sm text-on-surface/50 text-center py-4">Your order is empty</p>';
+            container.innerHTML = '<p class="text-sm text-on-surface/50 text-center py-4">Tu pedido está vacío</p>';
             totalSpan.textContent = '$0.00';
             return;
         }
