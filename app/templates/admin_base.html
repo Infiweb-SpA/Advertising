@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - {% block title %}Verdant Hearth{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Manrope', sans-serif; }
+        .serif-italic { font-family: 'Newsreader', serif; font-style: italic; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .active-tab { border-bottom: 2px solid #1B3022; color: #1B3022; font-weight: 700; }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1B3022",
+                        "on-primary": "#fbf9f4",
+                        "secondary": "#775a19",
+                        "surface": "#fbf9f4",
+                        "on-surface": "#1B3022",
+                        "surface-container": "#f5f3ee",
+                        "outline": "#d1cdbc",
+                        "error": "#ba1a1a"
+                    }
+                }
+            }
+        }
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-surface text-on-surface min-h-screen flex">
+    <!-- Sidebar -->
+    <aside class="flex flex-col w-64 h-screen p-4 space-y-2 bg-[#1B3022] text-[#fbf9f4] shadow-xl shrink-0 sticky top-0">
+        <div class="mb-8 px-2">
+            <h1 class="font-newsreader text-xl mb-1">The Verdant Hearth</h1>
+            <p class="text-xs text-[#fbf9f4]/60 uppercase tracking-widest">Management Portal</p>
+            <div class="flex items-center gap-3 mt-6">
+                <div class="w-10 h-10 rounded-full bg-white/10 overflow-hidden">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCSbWlDmnS_xReuXDxiw-dJaRlNOXGHR-HmnhXK4iFYEd8UuTUrlMxLK314yiVtVQKjatiyUV7Se642fX7AxlWNGvWrFOwQvXh9WnZZQYE7AJ0lsiDC73mRYW0sWQehd3TlLSWrRrQ3zyYyYVQoiaax0H6frt6cqkx25Kp1e1PqQZy4kwgjUJSUgt7O-4jIo6Soa2OdK3pBTrvtkKbYto04LqTGAv_hxqHoKK8MjoxC2D1w1gebRvGTRQ-8CfWUwpFM20VzxXoLVc6W" alt="Avatar" class="w-full h-full object-cover">
+                </div>
+                <div>
+                    <p class="text-sm font-bold">{{ current_user.username }}</p>
+                    <p class="text-[10px] text-[#fbf9f4]/50">Order Management</p>
+                </div>
+            </div>
+        </div>
+        <nav class="flex-1 space-y-1">
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
+            <a href="{{ url_for('admin.gestion_pedidos') }}" class="flex items-center gap-3 px-3 py-2.5 bg-[#fbf9f4]/10 text-[#fbf9f4] rounded-md"><span class="material-symbols-outlined">restaurant</span>Table Orders</a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md"><span class="material-symbols-outlined">package_2</span>Takeaway</a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md"><span class="material-symbols-outlined">edit_note</span>Menu Editor</a>
+            <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md"><span class="material-symbols-outlined">settings</span>Settings</a>
+        </nav>
+        <div class="mt-auto pt-4">
+            <a href="{{ url_for('auth.logout') }}" class="w-full py-2.5 bg-[#fbf9f4]/10 text-[#fbf9f4] rounded-md text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#fbf9f4]/20">Logout</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-8 overflow-y-auto">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for category, message in messages %}
+                <div class="p-3 rounded text-sm {% if category == 'success' %}bg-green-100 text-green-800{% elif category == 'danger' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

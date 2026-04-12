@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Your Cart - The Culinary Editorial{% endblock %}
+
+{% block content %}
+<main class="pt-8 pb-32 px-6 max-w-7xl mx-auto">
+    <header class="mb-12 text-center">
+        <h1 class="text-5xl md:text-7xl font-headline italic tracking-tight text-primary mb-6">Your Order</h1>
+        <p class="text-on-surface/70 max-w-2xl mx-auto font-body text-lg">Review your selections before sending to the kitchen.</p>
+    </header>
+
+    <div class="max-w-3xl mx-auto">
+        {% if cart and cart|length > 0 %}
+            <div class="bg-white rounded-lg border border-outline/30 overflow-hidden shadow-sm">
+                <div class="p-6 space-y-4">
+                    {% for product_id, item in cart.items() %}
+                    <div class="flex justify-between items-center py-3 border-b border-outline/10 last:border-0">
+                        <div class="flex items-center gap-4">
+                            <span class="font-bold text-primary w-8">{{ item.quantity }}x</span>
+                            <span class="text-lg">{{ item.name }}</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <span class="font-semibold">${{ "%.2f"|format(item.price * item.quantity) }}</span>
+                            <a href="{{ url_for('main.remove_from_cart', product_id=product_id) }}" class="text-red-500 text-sm hover:underline">Remove</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="bg-surface-container/50 px-6 py-4 flex justify-between items-center">
+                    <span class="font-bold uppercase text-sm">Total</span>
+                    <span class="text-xl font-headline font-bold text-primary">
+                        ${{ "%.2f"|format(cart.values()|sum(attribute='price') * cart.values()|sum(attribute='quantity') if cart else 0) }}
+                    </span>
+                </div>
+            </div>
+
+            <div class="mt-8 space-y-4">
+                <div>
+                    <label class="block text-xs uppercase tracking-widest font-bold text-on-surface/60 mb-2" for="table-number">Table Number (for dine-in)</label>
+                    <input class="w-full bg-surface border-outline/20 focus:ring-primary focus:border-primary rounded px-3 py-3 text-sm" id="table-number" placeholder="Enter table #" type="text" />
+                </div>
+                <button id="submit-cart-order" class="w-full bg-primary text-on-primary py-4 rounded font-label font-bold uppercase tracking-widest text-sm hover:bg-secondary transition-all shadow-lg">
+                    Send Order to Kitchen
+                </button>
+                <p class="text-xs text-center text-on-surface/50 italic">Ordering only. Payment at the end of your visit.</p>
+            </div>
+        {% else %}
+            <div class="text-center py-16 bg-surface-container/30 rounded-lg">
+                <span class="material-symbols-outlined text-6xl text-primary/30 mb-4">restaurant</span>
+                <h2 class="text-2xl font-headline italic text-primary/60">Your cart is empty</h2>
+                <p class="text-on-surface/50 mt-2">Add some delicious items from our menu.</p>
+                <a href="{{ url_for('main.carta') }}" class="mt-6 inline-block bg-primary text-on-primary px-8 py-3 rounded font-label text-sm uppercase tracking-widest hover:bg-secondary transition">Browse Menu</a>
+            </div>
+        {% endif %}
+    </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+{% if cart and cart|length > 0 %}
+<script>
+    document.getElementById('submit-cart-order').addEventListener('click', function() {
+        const tableNumber = document.getElementById('table-number').value;
+        if (!tableNumber) {
+            alert('Please enter a table number.');
+            return;
+        }
+
+        const cartData = JSON.parse(localStorage.getItem('verdantCart') || '{}');
+        if (Object.keys(cartData).length === 0) {
+            alert('Cart is empty.');
+            return;
+        }
+
+        fetch('/api/submit_order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                cart: cartData,
+                table_number: tableNumber,
+                order_type: 'dine_in'
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Order #${data.order_id} sent!`);
+                localStorage.removeItem('verdantCart');
+                window.location.href = "{{ url_for('main.carta') }}";
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Failed to send order.');
+        });
+    });
+</script>
+{% endif %}
+{% endblock %}

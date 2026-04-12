@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+
+{% block title %}The Tasting Menu | Verdant Hearth{% endblock %}
+
+{% block extra_head %}
+<style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #FDF9F3; color: #1A1C19; }
+    h1, h2, h3, .serif-italic { font-family: 'Newsreader', serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+</style>
+<script>
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                colors: {
+                    "primary": "#1B3022",
+                    "on-primary": "#FDF9F3",
+                    "secondary": "#3E5C45",
+                    "surface": "#FDF9F3",
+                    "on-surface": "#1A1C19",
+                    "surface-container": "#F2EFE9",
+                    "outline": "#727970"
+                },
+                fontFamily: {
+                    "headline": ["Newsreader", "serif"],
+                    "body": ["Plus Jakarta Sans", "sans-serif"],
+                    "label": ["Plus Jakarta Sans", "sans-serif"]
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}
+
+{% block content %}
+<main class="pt-8 pb-32 px-6 max-w-7xl mx-auto flex flex-col lg:flex-row gap-12">
+    <!-- Menu Section -->
+    <div class="flex-grow">
+        <header class="mb-12 text-center lg:text-left">
+            <span class="label-md uppercase tracking-[0.2em] text-primary mb-4 block font-label font-semibold">Verdant Hearth</span>
+            <h1 class="text-5xl md:text-7xl font-headline italic tracking-tight text-on-surface mb-6">The Tasting Menu</h1>
+            <p class="text-on-surface/70 max-w-2xl font-body text-lg leading-relaxed">
+                A curated selection of seasonal ingredients, crafted with patience and precision.
+                Experience the heritage of fire and grain.
+            </p>
+        </header>
+
+        <!-- Category Toggle (estático por ahora) -->
+        <div class="flex justify-center lg:justify-start mb-16">
+            <div class="inline-flex p-1 bg-surface-container rounded-lg">
+                <button id="btn-comida" class="px-8 py-2 rounded bg-primary text-on-primary font-label font-medium transition-all">Comida</button>
+                <button id="btn-bebida" class="px-8 py-2 rounded text-on-surface/60 font-label font-medium hover:text-primary transition-all">Bebestibles</button>
+            </div>
+        </div>
+
+        <!-- Menu Grid - Productos desde la BD -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {% for product in products %}
+            <div class="group flex flex-col product-card" data-category="{{ product.category_id }}">
+                <div class="relative overflow-hidden rounded-lg mb-6 aspect-[4/5] bg-surface-container">
+                    <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        alt="{{ product.name }}"
+                        src="{{ product.image_url or 'https://lh3.googleusercontent.com/aida-public/AB6AXuAm2lGaL2KqPfdMA5pgTSRtvQwq_3GojL5DAZ2vy_KVDbvy-ff62JkY__ciAH3ATV3Q2e68TD08aWG_Zj933GFcmmtSmHaVWDIsnb83MACbm1cAYVcIHm-XaElxB8pUWR_9ZAt0pQfQ4U5uDBiyDPvqgBToeaZtsJLYxpIJB7gnsbFhdJkcb8TOn2ii9pdXdpbd0xWX4-M-25JOCs0j0tmA_vCmBEQkyzRQIIkLZwz6Nt2S0Mn02Mr9xYGGjRSddijXciE_hTUQzMs4' }}" />
+                    {% if product.is_signature %}
+                    <div class="absolute top-4 left-4 bg-secondary text-on-primary px-3 py-1 rounded text-[10px] font-label font-bold tracking-wider uppercase">Signature</div>
+                    {% endif %}
+                    {% if product.is_offer %}
+                    <div class="absolute top-4 right-4 bg-primary text-on-primary px-3 py-1 rounded text-[10px] font-label font-bold tracking-wider uppercase">Offer</div>
+                    {% endif %}
+                </div>
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-2xl font-headline font-bold text-on-surface">{{ product.name }}</h3>
+                    <span class="text-lg font-headline font-semibold text-primary">${{ "%.2f"|format(product.price) }}</span>
+                </div>
+                <p class="text-on-surface/70 font-body text-sm leading-relaxed mb-6">
+                    {{ product.description }}
+                </p>
+                <button data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" data-product-price="{{ product.price }}"
+                    class="add-to-cart-btn mt-auto w-full py-3 border border-primary text-primary hover:bg-primary hover:text-on-primary transition-colors font-label font-semibold text-sm flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-lg">add</span> Add to Order
+                </button>
+            </div>
+            {% else %}
+            <p class="col-span-2 text-center text-on-surface/50">No products available at the moment.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Order Summary Sidebar -->
+    <aside class="lg:w-80 shrink-0">
+        <div class="sticky top-32 bg-surface-container rounded-lg p-6 shadow-sm border border-outline/10">
+            <h2 class="text-2xl font-headline italic mb-6 text-primary">Order to Table</h2>
+            <div id="cart-items-container" class="space-y-4 mb-8">
+                <!-- Los items del carrito se insertarán aquí con JavaScript -->
+                <p class="text-sm text-on-surface/50 text-center py-4">Your order is empty</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] uppercase tracking-widest font-bold text-on-surface/60 mb-2" for="table-number">Table Number</label>
+                    <input class="w-full bg-surface border-outline/20 focus:ring-primary focus:border-primary rounded px-3 py-2 text-sm" id="table-number" placeholder="Enter table #" type="text" />
+                </div>
+                <div class="pt-4 border-t border-outline/20">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-label font-bold uppercase text-xs">Total</span>
+                        <span id="cart-total" class="text-xl font-headline font-bold text-primary">$0.00</span>
+                    </div>
+                    <button id="submit-order-btn"
+                        class="w-full bg-primary text-on-primary py-4 rounded font-label font-bold uppercase tracking-widest text-xs hover:bg-secondary transition-all shadow-lg active:scale-[0.98]">
+                        Send Order to Kitchen
+                    </button>
+                    <p class="text-[10px] text-center text-on-surface/50 mt-4 leading-relaxed italic">
+                        Ordering only. Payment will be processed at the end of your visit.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </aside>
+</main>
+
+<!-- Mobile Order Toggle (FAB) -->
+<button id="mobile-cart-toggle" class="lg:hidden fixed bottom-8 right-8 bg-primary text-on-primary w-16 h-16 rounded-full flex items-center justify-center shadow-2xl active:scale-95 transition-transform z-40">
+    <span class="material-symbols-outlined text-2xl">restaurant</span>
+    <span id="mobile-cart-count" class="absolute -top-1 -right-1 bg-secondary text-white w-6 h-6 rounded-full text-[10px] flex items-center justify-center font-bold">0</span>
+</button>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Carrito de compras simple en localStorage
+    let cart = JSON.parse(localStorage.getItem('verdantCart')) || {};
+
+    function saveCart() {
+        localStorage.setItem('verdantCart', JSON.stringify(cart));
+        updateCartUI();
+        updateMobileBadge();
+    }
+
+    function updateCartUI() {
+        const container = document.getElementById('cart-items-container');
+        const totalSpan = document.getElementById('cart-total');
+        if (!container) return;
+
+        const items = Object.values(cart);
+        if (items.length === 0) {
+            container.innerHTML = '<p class="text-sm text-on-surface/50 text-center py-4">Your order is empty</p>';
+            totalSpan.textContent = '$0.00';
+            return;
+        }
+
+        let html = '';
+        let total = 0;
+        items.forEach(item => {
+            const subtotal = item.price * item.quantity;
+            total += subtotal;
+            html += `
+                <div class="flex justify-between items-center py-2 border-b border-outline/10">
+                    <div class="text-sm font-body">
+                        <span class="font-bold">${item.quantity}x</span> ${item.name}
+                        <button class="ml-2 text-red-500 text-xs" onclick="removeFromCart('${item.id}')">🗑️</button>
+                    </div>
+                    <span class="text-sm font-headline font-semibold">$${subtotal.toFixed(2)}</span>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        totalSpan.textContent = `$${total.toFixed(2)}`;
+    }
+
+    function updateMobileBadge() {
+        const count = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+        document.getElementById('mobile-cart-count').textContent = count;
+    }
+
+    function addToCart(productId, name, price) {
+        if (cart[productId]) {
+            cart[productId].quantity += 1;
+        } else {
+            cart[productId] = {
+                id: productId,
+                name: name,
+                price: parseFloat(price),
+                quantity: 1
+            };
+        }
+        saveCart();
+        // También enviar al backend (opcional)
+        fetch('/add_to_cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ product_id: productId, quantity: 1 })
+        }).catch(e => console.error('Sync error:', e));
+    }
+
+    function removeFromCart(productId) {
+        if (cart[productId]) {
+            if (cart[productId].quantity > 1) {
+                cart[productId].quantity -= 1;
+            } else {
+                delete cart[productId];
+            }
+        }
+        saveCart();
+    }
+
+    // Event listeners
+    document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            const id = this.dataset.productId;
+            const name = this.dataset.productName;
+            const price = this.dataset.productPrice;
+            addToCart(id, name, price);
+        });
+    });
+
+    document.getElementById('submit-order-btn').addEventListener('click', function() {
+        const tableNumber = document.getElementById('table-number').value;
+        if (!tableNumber) {
+            alert('Please enter a table number.');
+            return;
+        }
+        if (Object.keys(cart).length === 0) {
+            alert('Your order is empty.');
+            return;
+        }
+
+        const orderData = {
+            cart: cart,
+            table_number: tableNumber,
+            order_type: 'dine_in'
+        };
+
+        fetch('/api/submit_order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(`Order #${data.order_id} sent to kitchen!`);
+                cart = {};
+                saveCart();
+                document.getElementById('table-number').value = '';
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Failed to send order.');
+        });
+    });
+
+    // Inicializar UI
+    updateCartUI();
+    updateMobileBadge();
+</script>
+{% endblock %}

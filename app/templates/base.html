@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}The Culinary Editorial{% endblock %}</title>
+    <!-- Tailwind & Fonts -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Manrope:wght@200..800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Manrope', sans-serif; }
+        .font-newsreader, .font-headline { font-family: 'Newsreader', serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1B3022",
+                        "on-primary": "#fbf9f4",
+                        "secondary": "#775a19",
+                        "background": "#fbf9f4",
+                        "surface": "#fbf9f4",
+                        "surface-container-low": "#f5f3ee",
+                        "on-surface": "#1B3022",
+                        "on-surface-variant": "#4a5d4e",
+                        "outline": "#8a968d",
+                        "secondary-container": "#e8e0cc"
+                    },
+                    fontFamily: {
+                        "headline": ["Newsreader", "serif"],
+                        "body": ["Manrope", "sans-serif"],
+                        "label": ["Manrope", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-background text-on-surface">
+
+<!-- Navbar público -->
+<nav class="fixed top-0 w-full z-50 bg-[#fbf9f4]/80 backdrop-blur-xl border-b border-[#f5f3ee]">
+    <div class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+        <a href="{{ url_for('main.index') }}" class="font-newsreader italic text-2xl text-[#1B3022]">The Culinary Editorial</a>
+        <div class="hidden md:flex items-center gap-8 font-label text-xs uppercase tracking-[0.2em]">
+            <a href="{{ url_for('main.carta') }}" class="text-[#1B3022] hover:text-[#775a19] transition-colors {% if request.endpoint == 'main.carta' %}border-b border-[#775a19] pb-1{% endif %}">Menu</a>
+            <a href="#" class="text-[#1B3022] hover:text-[#775a19] transition-colors">Offers</a>
+            <a href="{{ url_for('main.info') }}" class="text-[#1B3022] hover:text-[#775a19] transition-colors {% if request.endpoint == 'main.info' %}border-b border-[#775a19] pb-1{% endif %}">Location</a>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="{{ url_for('main.view_cart') }}" class="relative">
+                <span class="material-symbols-outlined text-[#1B3022]">shopping_bag</span>
+                {% if cart_count and cart_count > 0 %}
+                <span class="absolute -top-2 -right-2 bg-secondary text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">{{ cart_count }}</span>
+                {% endif %}
+            </a>
+            {% if current_user.is_authenticated %}
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-primary hidden md:inline">{{ current_user.username }}</span>
+                    <a href="{{ url_for('auth.logout') }}" class="text-primary text-sm hover:underline">Logout</a>
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('admin.gestion_pedidos') }}" class="bg-secondary text-white px-3 py-1 rounded text-xs">Admin</a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="bg-[#1B3022] text-[#fbf9f4] px-6 py-2 rounded-sm font-label text-xs uppercase tracking-widest hover:bg-[#0f1f14] transition">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="fixed top-20 right-4 z-50 space-y-2 max-w-xs">
+        {% for category, message in messages %}
+        <div class="px-4 py-3 rounded shadow-lg text-sm border
+            {% if category == 'success' %}bg-green-100 text-green-800 border-green-300
+            {% elif category == 'danger' or category == 'error' %}bg-red-100 text-red-800 border-red-300
+            {% elif category == 'warning' %}bg-yellow-100 text-yellow-800 border-yellow-300
+            {% else %}bg-blue-100 text-blue-800 border-blue-300{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endwith %}
+
+<!-- Contenido principal -->
+<main class="pt-24">
+    {% block content %}{% endblock %}
+</main>
+
+<!-- Footer público -->
+<footer class="w-full bg-[#f5f3ee] border-t border-outline-variant/10 mt-16">
+    <div class="flex flex-col md:flex-row justify-between items-center px-12 py-8 w-full max-w-screen-2xl mx-auto gap-4">
+        <div class="mb-4 md:mb-0 text-center md:text-left">
+            <span class="font-newsreader text-lg text-[#1B3022]">The Culinary Editorial</span>
+            <p class="font-body text-[10px] tracking-tight text-[#1B3022]/70 uppercase mt-1">
+                © 2024 The Culinary Editorial. All Rights Reserved.
+            </p>
+        </div>
+        <div class="flex flex-wrap justify-center gap-6 font-body text-[10px] uppercase tracking-[0.1em]">
+            <a href="#" class="text-[#1B3022]/70 hover:text-[#775a19] transition">Journal</a>
+            <a href="#" class="text-[#1B3022]/70 hover:text-[#775a19] transition">Curator Notes</a>
+            <a href="#" class="text-[#1B3022]/70 hover:text-[#775a19] transition">Sustainability</a>
+            <a href="{{ url_for('main.info') }}" class="text-[#1B3022]/70 hover:text-[#775a19] transition">Contact</a>
+        </div>
+    </div>
+</footer>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>
