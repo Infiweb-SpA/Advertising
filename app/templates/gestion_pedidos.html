@@ -1,6 +1,6 @@
 {% extends "admin_base.html" %}
 
-{% block title %}Order Management{% endblock %}
+{% block title %}Gestión de Pedidos{% endblock %}
 
 {% block content %}
 <header class="mb-10">
@@ -9,13 +9,13 @@
     <p class="text-primary/60 font-body mt-2">Supervisar el servicio de piso y la eficiencia de las colas de comida para llevar.</p>
 </header>
 
-<!-- Stats Overview (simulado) -->
+<!-- Stats Overview -->
 <div class="grid grid-cols-12 gap-6 mb-10">
     <div class="col-span-12 md:col-span-8 bg-surface-container p-8 rounded-lg flex justify-between items-end relative overflow-hidden border border-outline/30">
         <div class="relative z-10">
-            <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Capacidad activa</p>
-            <p class="text-6xl font-headline italic mt-2 text-primary">{{ active_orders_count or 0 }} <span class="text-2xl not-italic text-outline">/ 32</span></p>
-            <p class="text-sm text-primary/70 mt-4">Pedidos simultáneos en el piso y la cocina.</p>
+            <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Pedidos activos</p>
+            <p class="text-6xl font-headline italic mt-2 text-primary">{{ active_orders_count }} <span class="text-2xl not-italic text-outline">/ {{ dine_in_orders|length + takeaway_orders|length }}</span></p>
+            <p class="text-sm text-primary/70 mt-4">Pedidos en preparación / total recientes</p>
         </div>
         <div class="absolute right-0 top-0 w-1/3 h-full bg-gradient-to-l from-secondary/5 to-transparent"></div>
     </div>
@@ -28,17 +28,17 @@
 
 <!-- Tabs -->
 <div class="mb-6 flex border-b border-outline/30">
-    <button class="px-6 py-3 text-sm font-bold tracking-tight active-tab">PEDIDOS DE MESA</button>
-    <button class="px-6 py-3 text-sm font-medium text-primary/50 hover:text-primary">PEDIDOS PARA LLEVAR</button>
+    <button id="tab-dinein" class="px-6 py-3 text-sm font-bold tracking-tight active-tab">PEDIDOS DE MESA</button>
+    <button id="tab-takeaway" class="px-6 py-3 text-sm font-medium text-primary/50 hover:text-primary">PEDIDOS PARA LLEVAR</button>
 </div>
 
-<!-- Table Orders -->
-<div class="bg-white rounded-lg border border-outline/30 overflow-hidden shadow-sm">
+<!-- Tabla de pedidos en mesa -->
+<div id="dinein-orders" class="bg-white rounded-lg border border-outline/30 overflow-hidden shadow-sm">
     <div class="px-6 py-4 bg-surface-container/50 flex justify-between items-center">
         <div class="flex items-center gap-4"><span class="flex h-2 w-2 rounded-full bg-secondary animate-pulse"></span><span class="font-bold text-[10px] text-primary uppercase tracking-widest">Estado en vivo de la mesa</span></div>
         <div class="relative">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">Buscar</span>
-            <input class="bg-surface border border-outline/50 text-xs pl-10 pr-4 py-2 rounded w-64" placeholder="Filtrar por mesa..." type="text">
+            <input id="filter-dinein" class="bg-surface border border-outline/50 text-xs pl-10 pr-4 py-2 rounded w-64" placeholder="Filtrar por mesa..." type="text">
         </div>
     </div>
     <div class="overflow-x-auto">
@@ -46,53 +46,230 @@
             <thead>
                 <tr class="bg-surface-container">
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Mesa</th>
-                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Artículos pedidos</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Detalle del pedido</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-center">Status</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-right">Total</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-right">Timer</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline/10">
                 {% for order in dine_in_orders %}
                 <tr class="hover:bg-surface-container/30">
-                    <td class="px-6 py-5">
+                    <td class="px-6 py-5 align-top">
                         <div class="flex items-center gap-3">
                             <span class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">{{ order.table.number if order.table else '?' }}</span>
                             <span class="font-bold text-primary">Mesa {{ order.table.number if order.table else 'N/A' }}</span>
                         </div>
                     </td>
-                    <td class="px-6 py-5">
-                        <p class="text-sm text-primary/80">
+                    <td class="px-6 py-5 align-top">
+                        <div class="space-y-1">
                             {% for item in order.items %}
-                                {{ item.quantity }}x {{ item.product.name }}{% if not loop.last %}, {% endif %}
+                            <div class="flex justify-between text-sm">
+                                <span>{{ item.quantity }}x {{ item.product.name }}</span>
+                                <span class="font-mono text-primary/70">${{ "%.2f"|format(item.unit_price) }} c/u</span>
+                                <span class="font-mono font-semibold">${{ "%.2f"|format(item.unit_price * item.quantity) }}</span>
+                            </div>
                             {% endfor %}
-                        </p>
+                        </div>
                     </td>
-                    <td class="px-6 py-5 text-center">
-                        {% set status_colors = {'received': 'bg-outline/20 text-primary/50', 'preparing': 'bg-secondary/10 text-secondary border border-secondary/20', 'ready': 'bg-green-100 text-green-800', 'served': 'bg-primary text-on-primary', 'completed': 'bg-gray-200 text-gray-600'} %}
+                    <td class="px-6 py-5 text-center align-top">
+                        {% set status_colors = {
+                            'received': 'bg-gray-200 text-gray-700',
+                            'preparing': 'bg-yellow-100 text-yellow-800 border border-yellow-300',
+                            'ready': 'bg-green-100 text-green-800 border border-green-300',
+                            'served': 'bg-blue-100 text-blue-800 border border-blue-300',
+                            'completed': 'bg-primary text-on-primary'
+                        } %}
                         <span class="inline-flex items-center px-3 py-1 rounded text-[10px] font-bold uppercase {{ status_colors.get(order.status, 'bg-gray-200') }}">
                             {{ order.status }}
                         </span>
                     </td>
-                    <td class="px-6 py-5 text-right font-mono text-xs text-primary/50">
+                    <td class="px-6 py-5 text-right font-headline font-bold text-primary text-lg align-top">
+                        ${{ "%.2f"|format(order.total) }}
+                    </td>
+                    <td class="px-6 py-5 text-right font-mono text-xs text-primary/50 align-top">
                         {% set elapsed = (now - order.created_at).total_seconds() // 60 %}
                         {{ "%02d:%02d"|format(elapsed//60, elapsed%60) }}
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="4" class="px-6 py-8 text-center text-primary/50">No hay pedidos activos para cenar.</td></tr>
+                <tr><td colspan="5" class="px-6 py-8 text-center text-primary/50">No hay pedidos recientes para mostrar. ¡Envía uno desde la carta!</td></tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    <div class="px-6 py-4 bg-surface-container/20 flex justify-center">
-        <button class="text-primary/40 text-[10px] font-bold uppercase tracking-[0.2em] hover:text-secondary">Ver todas las mesas ocupadas</button>
+</div>
+
+<!-- Tabla de pedidos para llevar -->
+<div id="takeaway-orders" class="bg-white rounded-lg border border-outline/30 overflow-hidden shadow-sm hidden">
+    <div class="px-6 py-4 bg-surface-container/50 flex justify-between items-center">
+        <div class="flex items-center gap-4"><span class="flex h-2 w-2 rounded-full bg-secondary animate-pulse"></span><span class="font-bold text-[10px] text-primary uppercase tracking-widest">Pedidos para llevar</span></div>
+        <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">Buscar</span>
+            <input id="filter-takeaway" class="bg-surface border border-outline/50 text-xs pl-10 pr-4 py-2 rounded w-64" placeholder="Filtrar por ID..." type="text">
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-surface-container">
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Pedido #</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Detalle del pedido</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-center">Status</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-right">Total</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-right">Timer</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-center">Acciones</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline/10">
+                {% for order in takeaway_orders %}
+                <tr class="hover:bg-surface-container/30">
+                    <td class="px-6 py-5 align-top">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-full bg-secondary text-on-primary flex items-center justify-center font-bold text-sm">#{{ order.id }}</span>
+                            <span class="font-bold text-primary">Takeaway</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-5 align-top">
+                        <div class="space-y-1">
+                            {% for item in order.items %}
+                            <div class="flex justify-between text-sm">
+                                <span>{{ item.quantity }}x {{ item.product.name }}</span>
+                                <span class="font-mono text-primary/70">${{ "%.2f"|format(item.unit_price) }} c/u</span>
+                                <span class="font-mono font-semibold">${{ "%.2f"|format(item.unit_price * item.quantity) }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-5 text-center align-top">
+                        {% set status_colors = {
+                            'received': 'bg-gray-200 text-gray-700',
+                            'preparing': 'bg-yellow-100 text-yellow-800 border border-yellow-300',
+                            'ready': 'bg-green-100 text-green-800 border border-green-300',
+                            'served': 'bg-blue-100 text-blue-800 border border-blue-300',
+                            'completed': 'bg-primary text-on-primary'
+                        } %}
+                        <span class="inline-flex items-center px-3 py-1 rounded text-[10px] font-bold uppercase {{ status_colors.get(order.status, 'bg-gray-200') }}">
+                            {{ order.status }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-5 text-right font-headline font-bold text-primary text-lg align-top">
+                        ${{ "%.2f"|format(order.total) }}
+                    </td>
+                    <td class="px-6 py-5 text-right font-mono text-xs text-primary/50 align-top">
+                        {% set elapsed = (now - order.created_at).total_seconds() // 60 %}
+                        {{ "%02d:%02d"|format(elapsed//60, elapsed%60) }}
+                    </td>
+                    <td class="px-6 py-5 text-center align-top">
+                        <button onclick="openWhatsAppModal('{{ order.id }}')" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1 mx-auto">
+                            <span class="material-symbols-outlined text-sm">send</span> WhatsApp
+                        </button>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="px-6 py-8 text-center text-primary/50">No hay pedidos para llevar recientes.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal para WhatsApp -->
+<div id="whatsappModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-2xl max-w-md w-full">
+        <h3 class="text-xl font-headline italic text-primary mb-4">Enviar aviso por WhatsApp</h3>
+        <p class="text-sm text-primary/70 mb-6">Ingresa el número de teléfono del cliente (código de país incluido, ej: 56912345678)</p>
+        <input type="tel" id="whatsappNumber" class="w-full border border-outline/30 rounded px-3 py-2 mb-4" placeholder="Número sin '+' ni espacios">
+        <input type="hidden" id="currentOrderId">
+        <div class="flex justify-end gap-3">
+            <button onclick="closeWhatsAppModal()" class="px-4 py-2 border border-outline/30 rounded text-sm">Cancelar</button>
+            <button onclick="sendWhatsApp()" class="px-4 py-2 bg-green-600 text-white rounded text-sm font-bold flex items-center gap-1">
+                <span class="material-symbols-outlined text-sm">send</span> Enviar
+            </button>
+        </div>
     </div>
 </div>
 
 <!-- Footer -->
 <footer class="mt-20 pt-12 pb-8 border-t border-outline/30 flex flex-col md:flex-row justify-between items-center text-[10px] uppercase tracking-widest text-primary/50">
     <div class="font-newsreader text-lg text-primary normal-case italic">La editorial culinaria</div>
-    <div class="my-4 md:my-0">© 2024 La editorial culinaria. Infiweb Todos los derechos reservados.</div>
+    <div class="my-4 md:my-0">© 2026 La editorial culinaria. Infiweb Todos los derechos reservados.</div>
     <div class="flex gap-6"><a href="#" class="hover:text-secondary">Privacidad</a><a href="#" class="hover:text-secondary">Terminos</a></div>
 </footer>
+
+<script>
+    // Cambio de pestañas
+    const tabDinein = document.getElementById('tab-dinein');
+    const tabTakeaway = document.getElementById('tab-takeaway');
+    const dineinOrders = document.getElementById('dinein-orders');
+    const takeawayOrders = document.getElementById('takeaway-orders');
+
+    tabDinein.addEventListener('click', () => {
+        tabDinein.classList.add('active-tab');
+        tabTakeaway.classList.remove('active-tab');
+        dineinOrders.classList.remove('hidden');
+        takeawayOrders.classList.add('hidden');
+    });
+
+    tabTakeaway.addEventListener('click', () => {
+        tabTakeaway.classList.add('active-tab');
+        tabDinein.classList.remove('active-tab');
+        takeawayOrders.classList.remove('hidden');
+        dineinOrders.classList.add('hidden');
+    });
+
+    // Filtros rápidos
+    document.getElementById('filter-dinein').addEventListener('keyup', function(e) {
+        const filter = e.target.value.toUpperCase();
+        const rows = document.querySelectorAll('#dinein-orders tbody tr');
+        rows.forEach(row => {
+            const mesa = row.querySelector('td:first-child')?.innerText.toUpperCase() || '';
+            row.style.display = mesa.includes(filter) ? '' : 'none';
+        });
+    });
+
+    document.getElementById('filter-takeaway').addEventListener('keyup', function(e) {
+        const filter = e.target.value.toUpperCase();
+        const rows = document.querySelectorAll('#takeaway-orders tbody tr');
+        rows.forEach(row => {
+            const id = row.querySelector('td:first-child')?.innerText.toUpperCase() || '';
+            row.style.display = id.includes(filter) ? '' : 'none';
+        });
+    });
+
+    // --- Lógica del modal WhatsApp ---
+    const modal = document.getElementById('whatsappModal');
+    const numberInput = document.getElementById('whatsappNumber');
+    const orderIdInput = document.getElementById('currentOrderId');
+
+    function openWhatsAppModal(orderId) {
+        orderIdInput.value = orderId;
+        numberInput.value = '';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeWhatsAppModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    function sendWhatsApp() {
+        const number = numberInput.value.trim();
+        if (!number) {
+            alert('Por favor ingresa un número de teléfono');
+            return;
+        }
+        const orderId = orderIdInput.value;
+        const message = encodeURIComponent(`Estimado cliente, su pedido #${orderId} ya se encuentra listo para retirar. ¡Gracias por su preferencia!`);
+        const url = `https://wa.me/${number}?text=${message}`;
+        window.open(url, '_blank');
+        closeWhatsAppModal();
+    }
+
+    // Cerrar modal al hacer clic fuera
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeWhatsAppModal();
+    });
+</script>
 {% endblock %}

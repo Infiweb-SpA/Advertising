@@ -43,8 +43,9 @@ def add_to_cart():
 
 @main_bp.route('/cart')
 def view_cart():
-    cart = session.get('cart', {})
-    return render_template('cart.html', cart=cart)  # Podrías crear un template sencillo o manejar con JS
+    # Redirigir a la carta, ya que el carrito se maneja en el sidebar
+    flash('El carrito ahora se gestiona directamente en la carta.', 'info')
+    return redirect(url_for('main.carta'))
 
 @main_bp.context_processor
 def inject_cart_count():

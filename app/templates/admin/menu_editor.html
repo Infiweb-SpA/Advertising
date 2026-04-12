@@ -1,0 +1,51 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Editor de Menú{% endblock %}
+
+{% block content %}
+<header class="mb-10">
+    <span class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Gestión de carta</span>
+    <h2 class="text-4xl font-headline italic tracking-tight text-primary mt-2">Editor de Menú</h2>
+    <p class="text-primary/60 font-body mt-2">Administra productos, categorías y precios.</p>
+</header>
+
+<div class="bg-white rounded-lg border border-outline/30 overflow-hidden shadow-sm p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h3 class="font-bold uppercase text-sm tracking-widest">Productos actuales</h3>
+        <button class="bg-primary text-on-primary px-4 py-2 rounded text-xs font-bold">+ Nuevo Producto</button>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-surface-container">
+                    <th class="px-4 py-3 text-[10px] font-bold uppercase">Nombre</th>
+                    <th class="px-4 py-3 text-[10px] font-bold uppercase">Categoría</th>
+                    <th class="px-4 py-3 text-[10px] font-bold uppercase text-right">Precio</th>
+                    <th class="px-4 py-3 text-[10px] font-bold uppercase text-center">Disponible</th>
+                    <th class="px-4 py-3 text-[10px] font-bold uppercase"></th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline/10">
+                {% for product in products %}
+                <tr>
+                    <td class="px-4 py-3">{{ product.name }}</td>
+                    <td class="px-4 py-3">{{ product.category.name if product.category else '-' }}</td>
+                    <td class="px-4 py-3 text-right">${{ "%.2f"|format(product.price) }}</td>
+                    <td class="px-4 py-3 text-center">
+                        {% if product.available %}
+                        <span class="text-green-600 text-lg">●</span>
+                        {% else %}
+                        <span class="text-gray-400 text-lg">○</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <button class="text-primary/50 hover:text-primary text-sm">Editar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <p class="text-xs text-primary/50 mt-6 italic">Funcionalidad completa de edición próximamente.</p>
+</div>
+{% endblock %}

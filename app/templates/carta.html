@@ -47,7 +47,7 @@
             </p>
         </header>
 
-        <!-- Category Toggle (estático por ahora) -->
+        <!-- Category Toggle (funcionalidad con JS) -->
         <div class="flex justify-center lg:justify-start mb-16">
             <div class="inline-flex p-1 bg-surface-container rounded-lg">
                 <button id="btn-comida" class="px-8 py-2 rounded bg-primary text-on-primary font-label font-medium transition-all">Comida</button>
@@ -58,7 +58,7 @@
         <!-- Menu Grid - Productos desde la BD -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
             {% for product in products %}
-            <div class="group flex flex-col product-card" data-category="{{ product.category_id }}">
+            <div class="group flex flex-col product-card" data-category="{{ product.category_id }}" data-category-type="{{ product.category.type if product.category else '' }}">
                 <div class="relative overflow-hidden rounded-lg mb-6 aspect-[4/5] bg-surface-container">
                     <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         alt="{{ product.name }}"
@@ -98,6 +98,13 @@
             </div>
             <div class="space-y-4">
                 <div>
+                    <label class="block text-[10px] uppercase tracking-widest font-bold text-on-surface/60 mb-2" for="order-type">Tipo de pedido</label>
+                    <select id="order-type" class="w-full bg-surface border-outline/20 focus:ring-primary focus:border-primary rounded px-3 py-2 text-sm">
+                        <option value="dine_in">Para servir en mesa</option>
+                        <option value="takeaway">Para llevar</option>
+                    </select>
+                </div>
+                <div id="table-number-container">
                     <label class="block text-[10px] uppercase tracking-widest font-bold text-on-surface/60 mb-2" for="table-number">Número de mesa</label>
                     <input class="w-full bg-surface border-outline/20 focus:ring-primary focus:border-primary rounded px-3 py-2 text-sm" id="table-number" placeholder="Enter table #" type="text" />
                 </div>
@@ -170,7 +177,8 @@
 
     function updateMobileBadge() {
         const count = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
-        document.getElementById('mobile-cart-count').textContent = count;
+        const badge = document.getElementById('mobile-cart-count');
+        if (badge) badge.textContent = count;
     }
 
     function addToCart(productId, name, price) {
@@ -185,12 +193,6 @@
             };
         }
         saveCart();
-        // También enviar al backend (opcional)
-        fetch('/add_to_cart', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ product_id: productId, quantity: 1 })
-        }).catch(e => console.error('Sync error:', e));
     }
 
     function removeFromCart(productId) {
@@ -204,7 +206,7 @@
         saveCart();
     }
 
-    // Event listeners
+    // Event listeners para botones agregar
     document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -215,21 +217,44 @@
         });
     });
 
+    // Manejar cambio de tipo de pedido
+    const orderTypeSelect = document.getElementById('order-type');
+    const tableNumberInput = document.getElementById('table-number');
+    const tableNumberContainer = document.getElementById('table-number-container');
+
+    function toggleTableNumber() {
+        if (orderTypeSelect.value === 'takeaway') {
+            tableNumberInput.disabled = true;
+            tableNumberInput.value = 'TA';
+            tableNumberContainer.style.opacity = '0.6';
+        } else {
+            tableNumberInput.disabled = false;
+            tableNumberInput.value = '';
+            tableNumberContainer.style.opacity = '1';
+        }
+    }
+
+    orderTypeSelect.addEventListener('change', toggleTableNumber);
+    toggleTableNumber(); // inicializar
+
+    // Enviar pedido
     document.getElementById('submit-order-btn').addEventListener('click', function() {
-        const tableNumber = document.getElementById('table-number').value;
-        if (!tableNumber) {
-            alert('Please enter a table number.');
+        const orderType = orderTypeSelect.value;
+        let tableNumber = tableNumberInput.value.trim();
+
+        if (orderType === 'dine_in' && !tableNumber) {
+            alert('Por favor ingresa el número de mesa.');
             return;
         }
         if (Object.keys(cart).length === 0) {
-            alert('Your order is empty.');
+            alert('Tu pedido está vacío.');
             return;
         }
 
         const orderData = {
             cart: cart,
             table_number: tableNumber,
-            order_type: 'dine_in'
+            order_type: orderType
         };
 
         fetch('/api/submit_order', {
@@ -240,18 +265,50 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(`Order #${data.order_id} sent to kitchen!`);
+                alert(`¡Pedido #${data.order_id} enviado a cocina!`);
                 cart = {};
                 saveCart();
-                document.getElementById('table-number').value = '';
+                tableNumberInput.value = orderType === 'dine_in' ? '' : 'TA';
             } else {
                 alert('Error: ' + data.error);
             }
         })
         .catch(err => {
             console.error(err);
-            alert('Failed to send order.');
+            alert('Error al enviar el pedido.');
         });
+    });
+
+    // Filtro por categoría (comida/bebida)
+    const btnComida = document.getElementById('btn-comida');
+    const btnBebida = document.getElementById('btn-bebida');
+    const productCards = document.querySelectorAll('.product-card');
+
+    function filterProducts(categoryType) {
+        productCards.forEach(card => {
+            const cardCatType = card.dataset.categoryType;
+            if (categoryType === 'all' || cardCatType === categoryType) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    btnComida.addEventListener('click', () => {
+        btnComida.classList.add('bg-primary', 'text-on-primary');
+        btnComida.classList.remove('text-on-surface/60', 'hover:text-primary');
+        btnBebida.classList.remove('bg-primary', 'text-on-primary');
+        btnBebida.classList.add('text-on-surface/60', 'hover:text-primary');
+        filterProducts('comida');
+    });
+
+    btnBebida.addEventListener('click', () => {
+        btnBebida.classList.add('bg-primary', 'text-on-primary');
+        btnBebida.classList.remove('text-on-surface/60', 'hover:text-primary');
+        btnComida.classList.remove('bg-primary', 'text-on-primary');
+        btnComida.classList.add('text-on-surface/60', 'hover:text-primary');
+        filterProducts('bebida');
     });
 
     // Inicializar UI

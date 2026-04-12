@@ -1,0 +1,41 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<header class="mb-10">
+    <span class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Resumen general</span>
+    <h2 class="text-4xl font-headline italic tracking-tight text-primary mt-2">Dashboard</h2>
+    <p class="text-primary/60 font-body mt-2">Métricas clave y estado actual del restaurante.</p>
+</header>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+    <div class="bg-white p-6 rounded-lg border border-outline/30 shadow-sm">
+        <span class="material-symbols-outlined text-secondary text-3xl">receipt_long</span>
+        <p class="text-4xl font-headline mt-4">{{ total_orders_today }}</p>
+        <p class="text-xs uppercase tracking-widest text-primary/60 mt-1">Pedidos hoy</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg border border-outline/30 shadow-sm">
+        <span class="material-symbols-outlined text-secondary text-3xl">payments</span>
+        <p class="text-4xl font-headline mt-4">${{ "%.2f"|format(total_revenue_today) }}</p>
+        <p class="text-xs uppercase tracking-widest text-primary/60 mt-1">Ingresos hoy</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg border border-outline/30 shadow-sm">
+        <span class="material-symbols-outlined text-secondary text-3xl">cooking</span>
+        <p class="text-4xl font-headline mt-4">{{ active_orders }}</p>
+        <p class="text-xs uppercase tracking-widest text-primary/60 mt-1">Pedidos activos</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="bg-white p-6 rounded-lg border border-outline/30">
+        <h3 class="font-bold uppercase text-xs tracking-widest mb-4">Mesas ocupadas</h3>
+        <!-- Aquí podrías listar mesas con pedidos activos -->
+        <p class="text-primary/50 text-sm">Próximamente...</p>
+    </div>
+    <div class="bg-white p-6 rounded-lg border border-outline/30">
+        <h3 class="font-bold uppercase text-xs tracking-widest mb-4">Últimos pedidos</h3>
+        <p class="text-primary/50 text-sm">Próximamente...</p>
+    </div>
+</div>
+{% endblock %}

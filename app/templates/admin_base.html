@@ -51,11 +51,21 @@
             </div>
         </div>
         <nav class="flex-1 space-y-1">
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md"><span class="material-symbols-outlined">dashboard</span>Dashboard</a>
-            <a href="{{ url_for('admin.gestion_pedidos') }}" class="flex items-center gap-3 px-3 py-2.5 bg-[#fbf9f4]/10 text-[#fbf9f4] rounded-md"><span class="material-symbols-outlined">restaurant</span>Órdenes de mesa</a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md"><span class="material-symbols-outlined">package_2</span>Para llevar</a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md"><span class="material-symbols-outlined">edit_note</span>Menu Editor</a>
-            <a href="#" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md"><span class="material-symbols-outlined">settings</span>Configuraciones</a>
+            <a href="{{ url_for('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md">
+                <span class="material-symbols-outlined">dashboard</span>Dashboard
+            </a>
+            <a href="{{ url_for('admin.gestion_pedidos') }}" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md">
+                <span class="material-symbols-outlined">restaurant</span>Órdenes de mesa
+            </a>
+            <a href="{{ url_for('admin.takeaway_orders_view') }}" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md">
+                <span class="material-symbols-outlined">package_2</span>Para llevar
+            </a>
+            <a href="{{ url_for('admin.menu_editor') }}" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md">
+                <span class="material-symbols-outlined">edit_note</span>Menu Editor
+            </a>
+            <a href="{{ url_for('admin.configuraciones') }}" class="flex items-center gap-3 px-3 py-2.5 text-[#fbf9f4]/60 hover:bg-[#fbf9f4]/5 hover:text-[#fbf9f4] rounded-md">
+                <span class="material-symbols-outlined">settings</span>Configuraciones
+            </a>
         </nav>
         <div class="mt-auto pt-4">
             <a href="{{ url_for('auth.logout') }}" class="w-full py-2.5 bg-[#fbf9f4]/10 text-[#fbf9f4] rounded-md text-sm font-bold flex items-center justify-center gap-2 hover:bg-[#fbf9f4]/20">cerrar sesión</a>

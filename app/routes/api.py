@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from flask_login import login_required, current_user
+from flask_login import current_user
 from app.models import Order, OrderItem, Product, Table
 from app.extensions import db
 from datetime import datetime
@@ -18,10 +18,22 @@ def submit_order():
     
     # Buscar mesa si es para comer en el local
     table = None
-    if order_type == 'dine_in' and table_number:
-        table = Table.query.filter_by(number=table_number).first()
-        if not table:
+    if order_type == 'dine_in':
+        if not table_number:
+            return jsonify({'error': 'Número de mesa requerido para pedidos en mesa'}), 400
+        try:
+            table_number_int = int(table_number)
+        except ValueError:
             return jsonify({'error': 'Número de mesa inválido'}), 400
+        table = Table.query.filter_by(number=table_number_int).first()
+        if not table:
+            # Crear la mesa automáticamente si no existe (opcional)
+            table = Table(number=table_number_int, status='occupied')
+            db.session.add(table)
+            db.session.flush()
+    else:
+        # Para takeaway, no se requiere mesa, pero podemos asignar un número ficticio o null
+        table = None
     
     # Crear pedido
     order = Order(
@@ -36,7 +48,7 @@ def submit_order():
     
     total = 0
     for item in cart.values():
-        product = Product.query.get(item['product_id'])
+        product = Product.query.get(item['id'])
         if product:
             order_item = OrderItem(
                 order_id=order.id,
@@ -51,18 +63,3 @@ def submit_order():
     db.session.commit()
     
     return jsonify({'success': True, 'order_id': order.id, 'total': total})
-
-@api_bp.route('/products')
-def get_products():
-    products = Product.query.filter_by(available=True).all()
-    result = []
-    for p in products:
-        result.append({
-            'id': p.id,
-            'name': p.name,
-            'price': p.price,
-            'description': p.description,
-            'image_url': p.image_url,
-            'category': p.category.name if p.category else None
-        })
-    return jsonify(result)
