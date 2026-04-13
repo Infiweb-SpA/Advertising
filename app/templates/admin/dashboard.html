@@ -9,28 +9,112 @@
     <p class="text-primary/60 font-body mt-2">Métricas clave y estado actual del restaurante.</p>
 </header>
 
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+<!-- Tarjetas principales -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+    <!-- Pedidos Hoy -->
     <div class="bg-white p-6 rounded-lg border border-outline/30 shadow-sm">
         <span class="material-symbols-outlined text-secondary text-3xl">receipt_long</span>
-        <p class="text-4xl font-headline mt-4">{{ total_orders_today }}</p>
+        <p class="text-4xl font-headline mt-4" id="card-orders-today">{{ total_orders_today }}</p>
         <p class="text-xs uppercase tracking-widest text-primary/60 mt-1">Pedidos hoy</p>
     </div>
+
+    <!-- Pedidos Totales (NUEVA) -->
+    <div class="bg-white p-6 rounded-lg border border-outline/30 shadow-sm">
+        <span class="material-symbols-outlined text-secondary text-3xl">inventory_2</span>
+        <p class="text-4xl font-headline mt-4" id="card-total-orders">{{ total_orders_all }}</p>
+        <p class="text-xs uppercase tracking-widest text-primary/60 mt-1">Pedidos totales</p>
+    </div>
+
+    <!-- Ingresos Hoy -->
     <div class="bg-white p-6 rounded-lg border border-outline/30 shadow-sm">
         <span class="material-symbols-outlined text-secondary text-3xl">payments</span>
-        <p class="text-4xl font-headline mt-4">${{ "%.2f"|format(total_revenue_today) }}</p>
+        <p class="text-4xl font-headline mt-4" id="card-revenue">${{ "%.2f"|format(total_revenue_today) }}</p>
         <p class="text-xs uppercase tracking-widest text-primary/60 mt-1">Ingresos hoy</p>
     </div>
+
+    <!-- Pedidos Activos (Dinámico) -->
     <div class="bg-white p-6 rounded-lg border border-outline/30 shadow-sm">
         <span class="material-symbols-outlined text-secondary text-3xl">cooking</span>
-        <p class="text-4xl font-headline mt-4">{{ active_orders }}</p>
+        <p class="text-4xl font-headline mt-4" id="card-active-orders">{{ active_orders }}</p>
         <p class="text-xs uppercase tracking-widest text-primary/60 mt-1">Pedidos activos</p>
+    </div>
+</div>
+
+<!-- Tarjetas de estado detalladas (Dinámicas) -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+    <!-- Recibidos -->
+    <div class="bg-white p-6 rounded-lg border border-outline/30 shadow-sm border-l-4 border-l-gray-400">
+        <div class="flex items-center justify-between">
+            <span class="material-symbols-outlined text-gray-500 text-2xl">inbox</span>
+            <span class="text-xs font-bold text-gray-500 uppercase">Recibidos</span>
+        </div>
+        <p class="text-3xl font-headline mt-3" id="count-received">{{ orders_received_count }}</p>
+        <p class="text-xs text-primary/50 mt-1">Esperando preparación</p>
+    </div>
+
+    <!-- En Preparación -->
+    <div class="bg-white p-6 rounded-lg border border-outline/30 shadow-sm border-l-4 border-l-yellow-500">
+        <div class="flex items-center justify-between">
+            <span class="material-symbols-outlined text-yellow-600 text-2xl">soup_kitchen</span>
+            <span class="text-xs font-bold text-yellow-600 uppercase">En preparación</span>
+        </div>
+        <p class="text-3xl font-headline mt-3" id="count-preparing">{{ orders_preparing_count }}</p>
+        <p class="text-xs text-primary/50 mt-1">Cocina trabajando</p>
+    </div>
+
+    <!-- Listos - DESGLOSE PRINCIPAL POR TIPO -->
+    <div class="bg-white p-6 rounded-lg border border-outline/30 shadow-sm border-l-4 border-l-green-500">
+        <div class="flex items-center justify-between mb-2">
+            <span class="material-symbols-outlined text-green-600 text-2xl">check_circle</span>
+            <span class="text-xs font-bold text-green-600 uppercase">Listos</span>
+        </div>
+        
+        <!-- Desglose principal: Para servir / Para llevar -->
+        <div class="flex items-baseline gap-4 mt-1">
+            <!-- Para servir (dine_in) -->
+            <div class="flex items-baseline gap-1">
+                <span class="material-symbols-outlined text-primary/60 text-xl">restaurant</span>
+                <span class="text-3xl font-headline" id="count-for-dinein">{{ orders_for_dine_in }}</span>
+            </div>
+            
+            <!-- Separador -->
+            <span class="text-primary/30 text-2xl">|</span>
+            
+            <!-- Para llevar (takeaway) -->
+            <div class="flex items-baseline gap-1">
+                <span class="material-symbols-outlined text-primary/60 text-xl">takeout_dining</span>
+                <span class="text-3xl font-headline" id="count-for-takeaway">{{ orders_for_takeaway }}</span>
+            </div>
+        </div>
+        
+        <!-- Leyenda debajo -->
+        <div class="flex items-center gap-4 mt-2 text-xs text-primary/50">
+            <span>Para servir</span>
+            <span>Para llevar</span>
+        </div>
+        
+        <!-- Total de listos (más pequeño, debajo) -->
+        <div class="mt-3 pt-3 border-t border-outline/20">
+            <p class="text-xs text-primary/40">
+                Total listos: <span class="font-semibold text-primary/60" id="count-ready">{{ orders_ready_count }}</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Entregados/Completados -->
+    <div class="bg-white p-6 rounded-lg border border-outline/30 shadow-sm border-l-4 border-l-primary">
+        <div class="flex items-center justify-between">
+            <span class="material-symbols-outlined text-primary text-2xl">done_all</span>
+            <span class="text-xs font-bold text-primary uppercase">Entregados</span>
+        </div>
+        <p class="text-3xl font-headline mt-3" id="count-completed">{{ orders_completed_count }}</p>
+        <p class="text-xs text-primary/50 mt-1">Pedidos finalizados</p>
     </div>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div class="bg-white p-6 rounded-lg border border-outline/30">
         <h3 class="font-bold uppercase text-xs tracking-widest mb-4">Mesas ocupadas</h3>
-        <!-- Aquí podrías listar mesas con pedidos activos -->
         <p class="text-primary/50 text-sm">Próximamente...</p>
     </div>
     <div class="bg-white p-6 rounded-lg border border-outline/30">
@@ -38,4 +122,127 @@
         <p class="text-primary/50 text-sm">Próximamente...</p>
     </div>
 </div>
+
+<script>
+    // Inicializar contadores desde la template
+    let dashboardCounts = {
+        ordersToday: {{ total_orders_today }},
+        totalOrders: {{ total_orders_all }},
+        revenue: {{ total_revenue_today }},
+        active: {{ active_orders }},
+        received: {{ orders_received_count }},
+        preparing: {{ orders_preparing_count }},
+        ready: {{ orders_ready_count }},
+        forDineIn: {{ orders_for_dine_in }},
+        forTakeaway: {{ orders_for_takeaway }},
+        completed: {{ orders_completed_count }}
+    };
+
+    // Función para actualizar una tarjeta con animación
+    function updateCard(elementId, newValue, prefix = '', suffix = '') {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        const currentValue = element.textContent.replace(/[^0-9.]/g, '');
+        if (parseFloat(currentValue) !== parseFloat(newValue)) {
+            element.textContent = prefix + newValue + suffix;
+
+            // Animación de pulso
+            element.classList.add('scale-110', 'text-secondary');
+            setTimeout(() => {
+                element.classList.remove('scale-110', 'text-secondary');
+            }, 300);
+        }
+    }
+
+    // Actualizar todas las tarjetas
+    function updateDashboard(data) {
+        // Tarjetas principales
+        updateCard('card-orders-today', data.total_orders_today);
+        updateCard('card-total-orders', data.total_orders_all);
+        updateCard('card-revenue', data.total_revenue_today.toFixed(2), '$');
+        updateCard('card-active-orders', data.active_orders);
+
+        // Tarjetas de estado
+        updateCard('count-received', data.orders_received_count);
+        updateCard('count-preparing', data.orders_preparing_count);
+        updateCard('count-ready', data.orders_ready_count);
+        updateCard('count-for-dinein', data.orders_for_dine_in);
+        updateCard('count-for-takeaway', data.orders_for_takeaway);
+        updateCard('count-completed', data.orders_completed_count);
+
+        console.log('Dashboard actualizado:', data);
+    }
+
+    // Conectar SSE para actualizaciones en tiempo real
+    function connectSSE() {
+        const eventSource = new EventSource('/admin/dashboard-stream');
+
+        eventSource.onmessage = function(event) {
+            try {
+                const data = JSON.parse(event.data);
+                updateDashboard(data);
+            } catch (e) {
+                console.error('Error parsing SSE data:', e);
+            }
+        };
+
+        eventSource.onerror = function(error) {
+            console.error('SSE connection error:', error);
+            setTimeout(() => {
+                console.log('Reconectando SSE...');
+                connectSSE();
+            }, 5000);
+        };
+
+        eventSource.onopen = function() {
+            console.log('SSE connection established');
+        };
+    }
+
+    // Iniciar conexión SSE cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function() {
+        connectSSE();
+    });
+
+    // Fallback: Actualizar cada 30 segundos por si SSE falla
+    setInterval(() => {
+        fetch('/admin/dashboard-data')
+            .then(response => response.json())
+            .then(data => updateDashboard(data))
+            .catch(error => console.error('Error fetching dashboard data:', error));
+    }, 30000);
+</script>
+
+<style>
+    /* Animación para actualizaciones */
+    .font-headline {
+        transition: transform 0.3s ease, color 0.3s ease;
+    }
+
+    .scale-110 {
+        transform: scale(1.1);
+    }
+
+    /* Indicador de conexión en vivo */
+    .live-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .live-indicator::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background: #22c55e;
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+</style>
 {% endblock %}

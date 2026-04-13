@@ -9,13 +9,35 @@
     <p class="text-primary/60 font-body mt-2">Supervisar el servicio de piso y la eficiencia de las colas de comida para llevar.</p>
 </header>
 
-<!-- Stats Overview -->
+<!-- Stats Overview - Contadores Dinámicos -->
 <div class="grid grid-cols-12 gap-6 mb-10">
     <div class="col-span-12 md:col-span-8 bg-surface-container p-8 rounded-lg flex justify-between items-end relative overflow-hidden border border-outline/30">
-        <div class="relative z-10">
-            <p class="text-[10px] font-bold text-secondary uppercase tracking-widest">Pedidos activos</p>
-            <p class="text-6xl font-headline italic mt-2 text-primary">{{ active_orders_count }} <span class="text-2xl not-italic text-outline">/ {{ dine_in_orders|length + takeaway_orders|length }}</span></p>
-            <p class="text-sm text-primary/70 mt-4">Pedidos en preparación / total recientes</p>
+        <div class="relative z-10 w-full">
+            <p class="text-[10px] font-bold text-secondary uppercase tracking-widest mb-4">Pedidos activos</p>
+
+            <!-- Contadores dinámicos -->
+            <div class="flex gap-8 mb-4">
+                <!-- Contador: En preparación -->
+                <div class="flex items-baseline gap-2">
+                    <span id="count-preparing" class="text-6xl font-headline italic text-primary">{{ orders_preparing_count }}</span>
+                    <span class="text-sm text-primary/60 font-medium">en preparación</span>
+                </div>
+
+                <!-- Contador: Recibidos -->
+                <div class="flex items-baseline gap-2">
+                    <span id="count-received" class="text-5xl font-headline italic text-primary/70">{{ orders_received_count }}</span>
+                    <span class="text-sm text-primary/60 font-medium">recibidos</span>
+                </div>
+            </div>
+
+            <!-- Total -->
+            <div class="flex items-baseline gap-2">
+                <span class="text-2xl not-italic text-outline">/ </span>
+                <span id="count-total" class="text-2xl not-italic text-outline">{{ dine_in_orders|length + takeaway_orders|length }}</span>
+                <span class="text-sm text-primary/60 font-medium ml-1">total recientes</span>
+            </div>
+
+            <p class="text-sm text-primary/70 mt-4">Pedidos en preparación / recibidos / total recientes</p>
         </div>
         <div class="absolute right-0 top-0 w-1/3 h-full bg-gradient-to-l from-secondary/5 to-transparent"></div>
     </div>
@@ -37,7 +59,7 @@
     <div class="px-6 py-4 bg-surface-container/50 flex justify-between items-center">
         <div class="flex items-center gap-4"><span class="flex h-2 w-2 rounded-full bg-secondary animate-pulse"></span><span class="font-bold text-[10px] text-primary uppercase tracking-widest">Estado en vivo de la mesa</span></div>
         <div class="relative">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">Buscar</span>
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
             <input id="filter-dinein" class="bg-surface border border-outline/50 text-xs pl-10 pr-4 py-2 rounded w-64" placeholder="Filtrar por mesa..." type="text">
         </div>
     </div>
@@ -48,13 +70,14 @@
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Mesa</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Detalle del pedido</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-center">Status</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-center">Entregado</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-right">Total</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-right">Timer</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-outline/10">
+            <tbody class="divide-y divide-outline/10" id="dinein-tbody">
                 {% for order in dine_in_orders %}
-                <tr class="hover:bg-surface-container/30">
+                <tr class="hover:bg-surface-container/30 order-row" data-order-id="{{ order.id }}" data-status="{{ order.status }}">
                     <td class="px-6 py-5 align-top">
                         <div class="flex items-center gap-3">
                             <span class="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm">{{ order.table.number if order.table else '?' }}</span>
@@ -74,15 +97,35 @@
                     </td>
                     <td class="px-6 py-5 text-center align-top">
                         {% set status_colors = {
-                            'received': 'bg-gray-200 text-gray-700',
+                            'received': 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer',
                             'preparing': 'bg-yellow-100 text-yellow-800 border border-yellow-300',
                             'ready': 'bg-green-100 text-green-800 border border-green-300',
                             'served': 'bg-blue-100 text-blue-800 border border-blue-300',
                             'completed': 'bg-primary text-on-primary'
                         } %}
-                        <span class="inline-flex items-center px-3 py-1 rounded text-[10px] font-bold uppercase {{ status_colors.get(order.status, 'bg-gray-200') }}">
-                            {{ order.status }}
+                        {% set status_labels = {
+                            'received': 'Recibido',
+                            'preparing': 'En preparación',
+                            'ready': 'Listo',
+                            'served': 'Servido',
+                            'completed': 'Completado'
+                        } %}
+                        <span class="status-badge inline-flex items-center px-3 py-1 rounded text-[10px] font-bold uppercase {{ status_colors.get(order.status, 'bg-gray-200') }}" 
+                              data-status="{{ order.status }}"
+                              data-order-id="{{ order.id }}"
+                              {% if order.status == 'received' %}onclick="updateStatusToPreparing({{ order.id }})"{% endif %}>
+                            {{ status_labels.get(order.status, order.status) }}
                         </span>
+                    </td>
+                    <td class="px-6 py-5 text-center align-top">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" 
+                                   class="entregado-checkbox form-checkbox h-5 w-5 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                   data-order-id="{{ order.id }}"
+                                   {% if order.status == 'completed' %}checked disabled{% endif %}
+                                   onchange="marcarEntregado(this, {{ order.id }})">
+                            <span class="ml-2 text-xs text-primary/70">Entregado</span>
+                        </label>
                     </td>
                     <td class="px-6 py-5 text-right font-headline font-bold text-primary text-lg align-top">
                         ${{ "%.2f"|format(order.total) }}
@@ -93,7 +136,7 @@
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="5" class="px-6 py-8 text-center text-primary/50">No hay pedidos recientes para mostrar. ¡Envía uno desde la carta!</td></tr>
+                <tr id="no-dinein-orders"><td colspan="6" class="px-6 py-8 text-center text-primary/50">No hay pedidos recientes para mostrar. ¡Envía uno desde la carta!</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -105,7 +148,7 @@
     <div class="px-6 py-4 bg-surface-container/50 flex justify-between items-center">
         <div class="flex items-center gap-4"><span class="flex h-2 w-2 rounded-full bg-secondary animate-pulse"></span><span class="font-bold text-[10px] text-primary uppercase tracking-widest">Pedidos para llevar</span></div>
         <div class="relative">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">Buscar</span>
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-lg">search</span>
             <input id="filter-takeaway" class="bg-surface border border-outline/50 text-xs pl-10 pr-4 py-2 rounded w-64" placeholder="Filtrar por ID..." type="text">
         </div>
     </div>
@@ -116,14 +159,15 @@
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Pedido #</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b">Detalle del pedido</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-center">Status</th>
+                    <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-center">Entregado</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-right">Total</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-right">Timer</th>
                     <th class="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-center">Acciones</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-outline/10">
+            <tbody class="divide-y divide-outline/10" id="takeaway-tbody">
                 {% for order in takeaway_orders %}
-                <tr class="hover:bg-surface-container/30">
+                <tr class="hover:bg-surface-container/30 order-row" data-order-id="{{ order.id }}" data-status="{{ order.status }}">
                     <td class="px-6 py-5 align-top">
                         <div class="flex items-center gap-3">
                             <span class="w-10 h-10 rounded-full bg-secondary text-on-primary flex items-center justify-center font-bold text-sm">#{{ order.id }}</span>
@@ -143,15 +187,35 @@
                     </td>
                     <td class="px-6 py-5 text-center align-top">
                         {% set status_colors = {
-                            'received': 'bg-gray-200 text-gray-700',
+                            'received': 'bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer',
                             'preparing': 'bg-yellow-100 text-yellow-800 border border-yellow-300',
                             'ready': 'bg-green-100 text-green-800 border border-green-300',
                             'served': 'bg-blue-100 text-blue-800 border border-blue-300',
                             'completed': 'bg-primary text-on-primary'
                         } %}
-                        <span class="inline-flex items-center px-3 py-1 rounded text-[10px] font-bold uppercase {{ status_colors.get(order.status, 'bg-gray-200') }}">
-                            {{ order.status }}
+                        {% set status_labels = {
+                            'received': 'Recibido',
+                            'preparing': 'En preparación',
+                            'ready': 'Listo',
+                            'served': 'Servido',
+                            'completed': 'Completado'
+                        } %}
+                        <span class="status-badge inline-flex items-center px-3 py-1 rounded text-[10px] font-bold uppercase {{ status_colors.get(order.status, 'bg-gray-200') }}" 
+                              data-status="{{ order.status }}"
+                              data-order-id="{{ order.id }}"
+                              {% if order.status == 'received' %}onclick="updateStatusToPreparing({{ order.id }})"{% endif %}>
+                            {{ status_labels.get(order.status, order.status) }}
                         </span>
+                    </td>
+                    <td class="px-6 py-5 text-center align-top">
+                        <label class="inline-flex items-center cursor-pointer">
+                            <input type="checkbox" 
+                                   class="entregado-checkbox form-checkbox h-5 w-5 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                   data-order-id="{{ order.id }}"
+                                   {% if order.status == 'completed' %}checked disabled{% endif %}
+                                   onchange="marcarEntregado(this, {{ order.id }})">
+                            <span class="ml-2 text-xs text-primary/70">Entregado</span>
+                        </label>
                     </td>
                     <td class="px-6 py-5 text-right font-headline font-bold text-primary text-lg align-top">
                         ${{ "%.2f"|format(order.total) }}
@@ -167,7 +231,7 @@
                     </td>
                 </tr>
                 {% else %}
-                <tr><td colspan="6" class="px-6 py-8 text-center text-primary/50">No hay pedidos para llevar recientes.</td></tr>
+                <tr id="no-takeaway-orders"><td colspan="7" class="px-6 py-8 text-center text-primary/50">No hay pedidos para llevar recientes.</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -198,6 +262,16 @@
 </footer>
 
 <script>
+    // Variables globales para contadores
+    let counts = {
+        received: {{ orders_received_count }},
+        preparing: {{ orders_preparing_count }},
+        ready: {{ orders_ready_count }},
+        served: {{ orders_served_count }},
+        completed: {{ orders_completed_count }},
+        total: {{ dine_in_orders|length + takeaway_orders|length }}
+    };
+
     // Cambio de pestañas
     const tabDinein = document.getElementById('tab-dinein');
     const tabTakeaway = document.getElementById('tab-takeaway');
@@ -221,7 +295,7 @@
     // Filtros rápidos
     document.getElementById('filter-dinein').addEventListener('keyup', function(e) {
         const filter = e.target.value.toUpperCase();
-        const rows = document.querySelectorAll('#dinein-orders tbody tr');
+        const rows = document.querySelectorAll('#dinein-orders tbody tr.order-row');
         rows.forEach(row => {
             const mesa = row.querySelector('td:first-child')?.innerText.toUpperCase() || '';
             row.style.display = mesa.includes(filter) ? '' : 'none';
@@ -230,12 +304,183 @@
 
     document.getElementById('filter-takeaway').addEventListener('keyup', function(e) {
         const filter = e.target.value.toUpperCase();
-        const rows = document.querySelectorAll('#takeaway-orders tbody tr');
+        const rows = document.querySelectorAll('#takeaway-orders tbody tr.order-row');
         rows.forEach(row => {
             const id = row.querySelector('td:first-child')?.innerText.toUpperCase() || '';
             row.style.display = id.includes(filter) ? '' : 'none';
         });
     });
+
+    // --- Función para actualizar los contadores en la UI ---
+    function updateCounters() {
+        // Actualizar contador de "en preparación"
+        const preparingEl = document.getElementById('count-preparing');
+        if (preparingEl) {
+            preparingEl.textContent = counts.preparing;
+            // Animación de cambio
+            preparingEl.classList.add('scale-110');
+            setTimeout(() => preparingEl.classList.remove('scale-110'), 200);
+        }
+
+        // Actualizar contador de "recibidos"
+        const receivedEl = document.getElementById('count-received');
+        if (receivedEl) {
+            receivedEl.textContent = counts.received;
+            receivedEl.classList.add('scale-110');
+            setTimeout(() => receivedEl.classList.remove('scale-110'), 200);
+        }
+
+        // Actualizar total
+        const totalEl = document.getElementById('count-total');
+        if (totalEl) {
+            totalEl.textContent = counts.total;
+        }
+    }
+
+    // --- Función para actualizar estado a "En preparación" ---
+    function updateStatusToPreparing(orderId) {
+        if (!confirm('¿Marcar este pedido como "En preparación"?')) {
+            return;
+        }
+
+        fetch(`/admin/update-order-status/${orderId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: 'status=preparing'
+        })
+        .then(response => {
+            if (response.ok) {
+                // Actualizar la UI sin recargar
+                const badge = document.querySelector(`.status-badge[data-order-id="${orderId}"]`);
+                const row = document.querySelector(`tr[data-order-id="${orderId}"]`);
+
+                if (badge) {
+                    badge.textContent = 'En preparación';
+                    badge.className = 'status-badge inline-flex items-center px-3 py-1 rounded text-[10px] font-bold uppercase bg-yellow-100 text-yellow-800 border border-yellow-300';
+                    badge.removeAttribute('onclick');
+                    badge.setAttribute('data-status', 'preparing');
+                }
+
+                if (row) {
+                    row.setAttribute('data-status', 'preparing');
+                }
+
+                // Actualizar contadores
+                counts.received--;
+                counts.preparing++;
+                updateCounters();
+
+                // Mostrar notificación
+                showNotification('Pedido actualizado a "En preparación"', 'success');
+            } else {
+                showNotification('Error al actualizar el pedido', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error de conexión', 'error');
+        });
+    }
+
+    // --- Función para marcar como Entregado (checkbox) ---
+    // CORRECCIÓN: Ahora obtenemos el estado ANTES de hacer cualquier cambio
+    function marcarEntregado(checkbox, orderId) {
+        if (checkbox.checked) {
+            if (!confirm('¿Confirmar que este pedido ha sido entregado?')) {
+                checkbox.checked = false;
+                return;
+            }
+
+            // IMPORTANTE: Obtener el estado ANTES de la petición fetch
+            // ya que después actualizaremos el DOM y perderemos la referencia al estado anterior
+            const row = document.querySelector(`tr[data-order-id="${orderId}"]`);
+            const oldStatus = row ? row.getAttribute('data-status') : 'preparing';
+
+            fetch(`/admin/update-order-status/${orderId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: 'status=completed'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Actualizar la UI
+                    checkbox.disabled = true;
+
+                    // Actualizar el badge de estado
+                    const badge = document.querySelector(`.status-badge[data-order-id="${orderId}"]`);
+
+                    if (badge) {
+                        badge.textContent = 'Completado';
+                        badge.className = 'status-badge inline-flex items-center px-3 py-1 rounded text-[10px] font-bold uppercase bg-primary text-on-primary';
+                        badge.removeAttribute('onclick');
+                        badge.setAttribute('data-status', 'completed');
+                    }
+
+                    if (row) {
+                        row.setAttribute('data-status', 'completed');
+                        row.classList.add('bg-green-50', 'opacity-75');
+                    }
+
+                    // Actualizar contadores según el estado anterior (que guardamos antes del fetch)
+                    console.log('Estado anterior:', oldStatus); // Debug
+                    if (oldStatus === 'preparing') {
+                        counts.preparing--;
+                    } else if (oldStatus === 'received') {
+                        counts.received--;
+                    } else if (oldStatus === 'ready') {
+                        counts.ready--;
+                    } else if (oldStatus === 'served') {
+                        counts.served--;
+                    }
+                    counts.completed++;
+
+                    // Debug: mostrar contadores actuales
+                    console.log('Contadores actualizados:', counts);
+
+                    updateCounters();
+
+                    showNotification('Pedido marcado como Entregado/Completado', 'success');
+                } else {
+                    checkbox.checked = false;
+                    showNotification('Error al actualizar el pedido', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                checkbox.checked = false;
+                showNotification('Error de conexión', 'error');
+            });
+        }
+    }
+
+    // --- Sistema de notificaciones ---
+    function showNotification(message, type = 'success') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 font-medium text-sm transition-all duration-300 transform translate-x-full ${
+            type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
+        }`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        // Animar entrada
+        setTimeout(() => {
+            notification.classList.remove('translate-x-full');
+        }, 100);
+
+        // Remover después de 3 segundos
+        setTimeout(() => {
+            notification.classList.add('translate-x-full');
+            setTimeout(() => {
+                notification.remove();
+            }, 300);
+        }, 3000);
+    }
 
     // --- Lógica del modal WhatsApp ---
     const modal = document.getElementById('whatsappModal');
@@ -272,4 +517,60 @@
         if (e.target === modal) closeWhatsAppModal();
     });
 </script>
+
+<style>
+    .active-tab {
+        border-bottom: 2px solid var(--color-primary);
+        color: var(--color-primary);
+        font-weight: 700;
+    }
+
+    /* Estilos para el checkbox */
+    .form-checkbox {
+        appearance: none;
+        background-color: #fff;
+        border: 2px solid #d1d5db;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .form-checkbox:checked {
+        background-color: #16a34a;
+        border-color: #16a34a;
+        background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3e%3c/svg%3e");
+        background-size: 100% 100%;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .form-checkbox:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .form-checkbox:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.3);
+    }
+
+    /* Hover effect para status clickeable */
+    .status-badge[data-status="received"] {
+        transition: all 0.2s ease;
+    }
+
+    .status-badge[data-status="received"]:hover {
+        transform: scale(1.05);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    /* Animación para contadores */
+    #count-preparing, #count-received {
+        transition: transform 0.2s ease;
+    }
+
+    .scale-110 {
+        transform: scale(1.1);
+    }
+</style>
 {% endblock %}

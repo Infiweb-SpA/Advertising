@@ -9,7 +9,7 @@ auth_bp = Blueprint('auth', __name__)
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('admin.gestion_pedidos'))
+        return redirect(url_for('admin.dashboard'))
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -18,7 +18,7 @@ def login():
             login_user(user, remember=True)
             next_page = request.args.get('next')
             flash('Inicio de sesión exitoso', 'success')
-            return redirect(next_page) if next_page else redirect(url_for('admin.gestion_pedidos'))
+            return redirect(next_page) if next_page else redirect(url_for('admin.dashboard'))
         else:
             flash('Correo o contraseña incorrectos', 'danger')
     return render_template('login.html')
