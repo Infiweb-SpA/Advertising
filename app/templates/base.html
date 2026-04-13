@@ -49,7 +49,7 @@
         <a href="{{ url_for('main.index') }}" class="font-newsreader italic text-2xl text-[#1B3022]">{{ site_name }}</a>
         <div class="hidden md:flex items-center gap-8 font-label text-xs uppercase tracking-[0.2em]">
             <a href="{{ url_for('main.carta') }}" class="text-[#1B3022] hover:text-[#775a19] transition-colors {% if request.endpoint == 'main.carta' %}border-b border-[#775a19] pb-1{% endif %}">Menú</a>
-            <a href="#" class="text-[#1B3022] hover:text-[#775a19] transition-colors">Ofertas</a>
+            <a href="{{ url_for('main.ofertas') }}" class="text-[#1B3022] hover:text-[#775a19] transition-colors {% if request.endpoint == 'main.ofertas' %}border-b border-[#775a19] pb-1{% endif %}">Ofertas</a>
             <a href="{{ url_for('main.info') }}" class="text-[#1B3022] hover:text-[#775a19] transition-colors {% if request.endpoint == 'main.info' %}border-b border-[#775a19] pb-1{% endif %}">Ubicación</a>
         </div>
         <div class="flex items-center gap-4">

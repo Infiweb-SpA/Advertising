@@ -35,6 +35,19 @@ class Product(db.Model):
     is_offer = db.Column(db.Boolean, default=False)
     available = db.Column(db.Boolean, default=True)
 
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'price': self.price,
+            'category_id': self.category_id,
+            'available': self.available,
+            'is_signature': self.is_signature,
+            'is_offer': self.is_offer,
+            'image_url': self.image_url
+        }
+
     order_items = db.relationship('OrderItem', backref='product', lazy=True)
 
 class Table(db.Model):

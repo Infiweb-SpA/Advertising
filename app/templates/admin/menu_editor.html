@@ -12,7 +12,7 @@
 <div class="bg-white rounded-lg border border-outline/30 overflow-hidden shadow-sm p-6">
     <div class="flex justify-between items-center mb-6">
         <h3 class="font-bold uppercase text-sm tracking-widest">Productos actuales</h3>
-        <button class="bg-primary text-on-primary px-4 py-2 rounded text-xs font-bold">+ Nuevo Producto</button>
+        <button onclick="openCreateModal()" class="bg-primary text-on-primary px-4 py-2 rounded text-xs font-bold hover:bg-primary/90 transition-colors">+ Nuevo Producto</button>
     </div>
     <div class="overflow-x-auto">
         <table class="w-full text-left">
@@ -22,30 +22,163 @@
                     <th class="px-4 py-3 text-[10px] font-bold uppercase">Categoría</th>
                     <th class="px-4 py-3 text-[10px] font-bold uppercase text-right">Precio</th>
                     <th class="px-4 py-3 text-[10px] font-bold uppercase text-center">Disponible</th>
-                    <th class="px-4 py-3 text-[10px] font-bold uppercase"></th>
+                    <th class="px-4 py-3 text-[10px] font-bold uppercase text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline/10">
                 {% for product in products %}
                 <tr>
-                    <td class="px-4 py-3">{{ product.name }}</td>
-                    <td class="px-4 py-3">{{ product.category.name if product.category else '-' }}</td>
-                    <td class="px-4 py-3 text-right">${{ "%.2f"|format(product.price) }}</td>
+                    <td class="px-4 py-3 font-medium text-primary">{{ product.name }}</td>
+                    <td class="px-4 py-3 text-primary/70">{{ product.category.name if product.category else '-' }}</td>
+                    <td class="px-4 py-3 text-right font-mono">${{ "%.2f"|format(product.price) }}</td>
                     <td class="px-4 py-3 text-center">
                         {% if product.available %}
-                        <span class="text-green-600 text-lg">●</span>
+                        <span class="inline-flex h-2 w-2 rounded-full bg-green-500"></span>
                         {% else %}
-                        <span class="text-gray-400 text-lg">○</span>
+                        <span class="inline-flex h-2 w-2 rounded-full bg-gray-300"></span>
                         {% endif %}
                     </td>
-                    <td class="px-4 py-3 text-right">
-                        <button class="text-primary/50 hover:text-primary text-sm">Editar</button>
+                    <td class="px-4 py-3 text-center">
+                        <div class="flex items-center justify-center gap-2">
+                            <button 
+                                onclick="openEditModal(
+                                    {{ product.id }},
+                                    '{{ product.name | escape }}',
+                                    {{ product.price }},
+                                    {{ product.category_id if product.category_id else 'null' }},
+                                    '{{ product.description | default('') | escape }}',
+                                    '{{ product.image_url | default('') | escape }}',
+                                    {{ product.available | lower }},
+                                    {{ product.is_signature | lower }},
+                                    {{ product.is_offer | lower }}
+                                )"
+                                class="text-primary/60 hover:text-primary text-xs font-bold uppercase tracking-wider px-2 py-1 rounded hover:bg-surface-container transition-colors">
+                                Editar
+                            </button>
+                            <form action="{{ url_for('admin.delete_product', product_id=product.id) }}" method="POST" class="inline" onsubmit="return confirm('¿Eliminar {{ product.name }}?')">
+                                <button type="submit" class="text-error/60 hover:text-error text-xs px-2 py-1 rounded hover:bg-red-50 transition-colors">
+                                    <span class="material-symbols-outlined text-sm">delete</span>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
-    <p class="text-xs text-primary/50 mt-6 italic">Funcionalidad completa de edición próximamente.</p>
 </div>
+
+<!-- Modal Producto -->
+<div id="productModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-outline/30 flex justify-between items-center">
+            <h3 id="modalTitle" class="text-xl font-headline italic text-primary">Nuevo Producto</h3>
+            <button onclick="closeModal()" class="text-primary/50 hover:text-primary">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        
+        <form id="productForm" method="POST" class="p-6 space-y-4">
+            <div class="grid grid-cols-2 gap-4">
+                <div class="col-span-2">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1">Nombre *</label>
+                    <input type="text" name="name" id="formName" required class="w-full bg-surface border border-outline/50 rounded px-3 py-2 text-sm focus:border-secondary outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1">Precio *</label>
+                    <input type="number" name="price" id="formPrice" step="0.01" min="0" required class="w-full bg-surface border border-outline/50 rounded px-3 py-2 text-sm font-mono focus:border-secondary outline-none">
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1">Categoría *</label>
+                    <select name="category_id" id="formCategory" required class="w-full bg-surface border border-outline/50 rounded px-3 py-2 text-sm focus:border-secondary outline-none">
+                        <option value="">Seleccionar...</option>
+                        {% for category in categories %}
+                        <option value="{{ category.id }}">{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1">Descripción</label>
+                <textarea name="description" id="formDescription" rows="2" class="w-full bg-surface border border-outline/50 rounded px-3 py-2 text-sm focus:border-secondary outline-none resize-none"></textarea>
+            </div>
+            
+            <div>
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1">URL Imagen</label>
+                <input type="url" name="image_url" id="formImageUrl" class="w-full bg-surface border border-outline/50 rounded px-3 py-2 text-sm focus:border-secondary outline-none">
+            </div>
+            
+            <div class="flex gap-4 pt-2">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="available" id="formAvailable" checked class="rounded border-outline text-secondary focus:ring-secondary">
+                    <span class="text-xs font-medium">Disponible</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="is_signature" id="formSignature" class="rounded border-outline text-secondary focus:ring-secondary">
+                    <span class="text-xs font-medium">Destacado</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" name="is_offer" id="formOffer" class="rounded border-outline text-secondary focus:ring-secondary">
+                    <span class="text-xs font-medium">Oferta</span>
+                </label>
+            </div>
+            
+            <div class="flex justify-end gap-3 pt-4 border-t border-outline/30">
+                <button type="button" onclick="closeModal()" class="px-4 py-2 border border-outline/50 rounded text-xs font-medium hover:bg-surface-container">Cancelar</button>
+                <button type="submit" class="px-4 py-2 bg-primary text-on-primary rounded text-xs font-bold hover:bg-primary/90">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('productModal');
+    const form = document.getElementById('productForm');
+    const modalTitle = document.getElementById('modalTitle');
+    
+    function openCreateModal() {
+        form.reset();
+        document.getElementById('formAvailable').checked = true;
+        document.getElementById('formSignature').checked = false;
+        document.getElementById('formOffer').checked = false;
+        form.action = "{{ url_for('admin.create_product') }}";
+        modalTitle.textContent = 'Nuevo Producto';
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    
+    function openEditModal(id, name, price, categoryId, description, imageUrl, available, isSignature, isOffer) {
+        form.action = "{{ url_for('admin.edit_product', product_id=0) }}".replace('0', id);
+        modalTitle.textContent = 'Editar Producto';
+        
+        document.getElementById('formName').value = name;
+        document.getElementById('formPrice').value = price;
+        document.getElementById('formCategory').value = categoryId || '';
+        document.getElementById('formDescription').value = description;
+        document.getElementById('formImageUrl').value = imageUrl;
+        document.getElementById('formAvailable').checked = available;
+        document.getElementById('formSignature').checked = isSignature;
+        document.getElementById('formOffer').checked = isOffer;
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+    
+    function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            closeModal();
+        }
+    });
+</script>
 {% endblock %}

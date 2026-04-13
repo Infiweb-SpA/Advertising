@@ -130,3 +130,74 @@ def update_order_status(order_id):
         flash(f'Pedido #{order.id} actualizado a {new_status}', 'success')
     return redirect(url_for('admin.gestion_pedidos'))
 
+
+# --- Crear nuevo producto ---
+@admin_bp.route('/menu-editor/producto/nuevo', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def create_product():
+    if request.method == 'POST':
+        try:
+            product = Product(
+                name=request.form.get('name', '').strip(),
+                description=request.form.get('description', '').strip(),
+                price=float(request.form.get('price', 0)),
+                category_id=int(request.form.get('category_id')),
+                available=request.form.get('available') == 'on',
+                is_signature=request.form.get('is_signature') == 'on',
+                is_offer=request.form.get('is_offer') == 'on',
+                image_url=request.form.get('image_url', '').strip()
+            )
+            db.session.add(product)
+            db.session.commit()
+            flash(f'Producto "{product.name}" creado exitosamente.', 'success')
+            return redirect(url_for('admin.menu_editor'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al crear producto: {str(e)}', 'danger')
+            return redirect(url_for('admin.menu_editor'))
+    
+    return redirect(url_for('admin.menu_editor'))
+
+# --- Editar producto ---
+@admin_bp.route('/menu-editor/producto/<int:product_id>/editar', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    
+    if request.method == 'POST':
+        try:
+            product.name = request.form.get('name', '').strip()
+            product.description = request.form.get('description', '').strip()
+            product.price = float(request.form.get('price', 0))
+            product.category_id = int(request.form.get('category_id'))
+            product.available = request.form.get('available') == 'on'
+            product.is_signature = request.form.get('is_signature') == 'on'
+            product.is_offer = request.form.get('is_offer') == 'on'
+            product.image_url = request.form.get('image_url', '').strip()
+            
+            db.session.commit()
+            flash(f'Producto "{product.name}" actualizado exitosamente.', 'success')
+            return redirect(url_for('admin.menu_editor'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error al actualizar producto: {str(e)}', 'danger')
+            return redirect(url_for('admin.menu_editor'))
+    
+    return redirect(url_for('admin.menu_editor'))
+
+# --- Eliminar producto ---
+@admin_bp.route('/menu-editor/producto/<int:product_id>/eliminar', methods=['POST'])
+@login_required
+@admin_required
+def delete_product(product_id):
+    product = Product.query.get_or_404(product_id)
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        flash(f'Producto "{product.name}" eliminado.', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error al eliminar: {str(e)}', 'danger')
+    return redirect(url_for('admin.menu_editor'))

@@ -63,3 +63,10 @@ def remove_from_cart(product_id):
         session['cart'] = cart
         flash('Item removed from cart.', 'info')
     return redirect(url_for('main.view_cart'))
+
+@main_bp.route('/ofertas')
+def ofertas():
+    # Obtener productos que están marcados como oferta y disponibles
+    products = Product.query.filter_by(is_offer=True, available=True).order_by(Product.category_id).all()
+    return render_template('ofertas.html', products=products)
+
