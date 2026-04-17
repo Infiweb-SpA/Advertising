@@ -12,6 +12,9 @@
         body { font-family: 'Manrope', sans-serif; }
         .font-newsreader, .font-headline { font-family: 'Newsreader', serif; }
         .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        /* Ocultar menú móvil inicialmente */
+        #mobile-menu { display: none; }
+        #mobile-menu.open { display: flex; }
     </style>
     <script>
         tailwind.config = {
@@ -45,32 +48,63 @@
 
 <!-- Navbar público -->
 <nav class="fixed top-0 w-full z-50 bg-[#fbf9f4]/80 backdrop-blur-xl border-b border-[#f5f3ee]">
-    <div class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
-        <a href="{{ url_for('main.index') }}" class="font-newsreader italic text-2xl text-[#1B3022]">{{ site_name }}</a>
+    <div class="flex justify-between items-center w-full px-4 md:px-8 py-4 max-w-screen-2xl mx-auto">
+        <a href="{{ url_for('main.index') }}" class="font-newsreader italic text-xl md:text-2xl text-[#1B3022]">{{ site_name }}</a>
+        
+        <!-- Menú desktop -->
         <div class="hidden md:flex items-center gap-8 font-label text-xs uppercase tracking-[0.2em]">
             <a href="{{ url_for('main.carta') }}" class="text-[#1B3022] hover:text-[#775a19] transition-colors {% if request.endpoint == 'main.carta' %}border-b border-[#775a19] pb-1{% endif %}">Menú</a>
             <a href="{{ url_for('main.ofertas') }}" class="text-[#1B3022] hover:text-[#775a19] transition-colors {% if request.endpoint == 'main.ofertas' %}border-b border-[#775a19] pb-1{% endif %}">Ofertas</a>
             <a href="{{ url_for('main.info') }}" class="text-[#1B3022] hover:text-[#775a19] transition-colors {% if request.endpoint == 'main.info' %}border-b border-[#775a19] pb-1{% endif %}">Ubicación</a>
         </div>
-        <div class="flex items-center gap-4">
+        
+        <div class="flex items-center gap-3 md:gap-4">
             <a href="{{ url_for('main.view_cart') }}" class="relative">
-                <span class="material-symbols-outlined text-[#1B3022]">shopping_bag</span>
+                <span class="material-symbols-outlined text-[#1B3022] text-2xl">shopping_bag</span>
                 {% if cart_count and cart_count > 0 %}
                 <span class="absolute -top-2 -right-2 bg-secondary text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold">{{ cart_count }}</span>
                 {% endif %}
             </a>
             {% if current_user.is_authenticated %}
-                <div class="flex items-center gap-2">
-                    <span class="text-sm text-primary hidden md:inline">{{ current_user.username }}</span>
+                <div class="hidden md:flex items-center gap-2">
+                    <span class="text-sm text-primary">{{ current_user.username }}</span>
                     <a href="{{ url_for('auth.logout') }}" class="text-primary text-sm hover:underline">Cerrar sesión</a>
                     {% if current_user.is_admin %}
                     <a href="{{ url_for('admin.dashboard') }}" class="bg-secondary text-white px-3 py-1 rounded text-xs">Admin</a>
                     {% endif %}
                 </div>
+                <!-- Versión móvil: solo icono con dropdown? Mejor mantener simple -->
+                <div class="md:hidden flex items-center">
+                    <a href="{{ url_for('auth.logout') }}" class="text-primary text-sm">Salir</a>
+                    {% if current_user.is_admin %}
+                    <a href="{{ url_for('admin.dashboard') }}" class="ml-2 bg-secondary text-white px-2 py-1 rounded text-xs">Admin</a>
+                    {% endif %}
+                </div>
             {% else %}
-                <a href="{{ url_for('auth.login') }}" class="bg-[#1B3022] text-[#fbf9f4] px-6 py-2 rounded-sm font-label text-xs uppercase tracking-widest hover:bg-[#0f1f14] transition">Acceso</a>
+                <a href="{{ url_for('auth.login') }}" class="bg-[#1B3022] text-[#fbf9f4] px-4 md:px-6 py-2 rounded-sm font-label text-xs uppercase tracking-widest hover:bg-[#0f1f14] transition">Acceso</a>
             {% endif %}
+            
+            <!-- Botón hamburguesa móvil -->
+            <button id="menu-toggle" class="md:hidden focus:outline-none">
+                <span class="material-symbols-outlined text-3xl text-primary">menu</span>
+            </button>
         </div>
+    </div>
+    
+    <!-- Menú móvil desplegable -->
+    <div id="mobile-menu" class="md:hidden flex-col bg-[#fbf9f4] border-t border-[#f5f3ee] px-4 py-4 space-y-4">
+        <a href="{{ url_for('main.carta') }}" class="block text-primary text-base uppercase tracking-wider py-2">Menú</a>
+        <a href="{{ url_for('main.ofertas') }}" class="block text-primary text-base uppercase tracking-wider py-2">Ofertas</a>
+        <a href="{{ url_for('main.info') }}" class="block text-primary text-base uppercase tracking-wider py-2">Ubicación</a>
+        {% if current_user.is_authenticated %}
+            <div class="pt-2 border-t border-gray-200">
+                <p class="text-sm text-primary/70">{{ current_user.username }}</p>
+                {% if current_user.is_admin %}
+                <a href="{{ url_for('admin.dashboard') }}" class="block text-secondary font-bold py-2">Panel Admin</a>
+                {% endif %}
+                <a href="{{ url_for('auth.logout') }}" class="block text-primary py-2">Cerrar sesión</a>
+            </div>
+        {% endif %}
     </div>
 </nav>
 
@@ -92,13 +126,13 @@
 {% endwith %}
 
 <!-- Contenido principal -->
-<main class="pt-24">
+<main class="pt-20 md:pt-24">
     {% block content %}{% endblock %}
 </main>
 
 <!-- Footer público -->
 <footer class="w-full bg-[#f5f3ee] border-t border-outline-variant/10 mt-16">
-    <div class="flex flex-col md:flex-row justify-between items-center px-12 py-8 w-full max-w-screen-2xl mx-auto gap-4">
+    <div class="flex flex-col md:flex-row justify-between items-center px-6 md:px-12 py-8 w-full max-w-screen-2xl mx-auto gap-4">
         <div class="mb-4 md:mb-0 text-center md:text-left">
             <span class="font-newsreader text-lg text-[#1B3022]">{{ site_name }}</span>
             <p class="font-body text-[10px] tracking-tight text-[#1B3022]/70 uppercase mt-1">
@@ -110,7 +144,7 @@
             </p>
             {% endif %}
         </div>
-        <div class="flex flex-wrap justify-center gap-6 font-body text-[10px] uppercase tracking-[0.1em]">
+        <div class="flex flex-wrap justify-center gap-4 md:gap-6 font-body text-[10px] uppercase tracking-[0.1em]">
             <a href="#" class="text-[#1B3022]/70 hover:text-[#775a19] transition">Diario</a>
             <a href="#" class="text-[#1B3022]/70 hover:text-[#775a19] transition">Notas del curador</a>
             <a href="#" class="text-[#1B3022]/70 hover:text-[#775a19] transition">Sostenibilidad</a>
@@ -119,6 +153,16 @@
     </div>
 </footer>
 
+<script>
+    // Toggle menú móvil
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    if (menuToggle) {
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+        });
+    }
+</script>
 {% block scripts %}{% endblock %}
 </body>
 </html>

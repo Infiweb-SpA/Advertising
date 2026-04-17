@@ -3,47 +3,47 @@
 {% block title %}Configuraciones{% endblock %}
 
 {% block content %}
-<header class="mb-10">
+<header class="mb-6 md:mb-10">
     <span class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Ajustes del sistema</span>
-    <h2 class="text-4xl font-headline italic tracking-tight text-primary mt-2">Configuraciones</h2>
-    <p class="text-primary/60 font-body mt-2">Personaliza el funcionamiento del restaurante.</p>
+    <h2 class="text-3xl md:text-4xl font-headline italic tracking-tight text-primary mt-2">Configuraciones</h2>
+    <p class="text-primary/60 font-body mt-2 text-sm md:text-base">Personaliza el funcionamiento del restaurante.</p>
 </header>
 
-<div class="bg-white rounded-lg border border-outline/30 p-8 shadow-sm max-w-2xl">
+<div class="bg-white rounded-lg border border-outline/30 p-4 md:p-8 shadow-sm max-w-2xl mx-auto md:mx-0">
     <form method="POST">
-        <h3 class="font-bold uppercase text-sm tracking-widest mb-6">Preferencias generales</h3>
-        <div class="space-y-6">
+        <h3 class="font-bold uppercase text-sm tracking-widest mb-4 md:mb-6">Preferencias generales</h3>
+        <div class="space-y-4 md:space-y-6">
             <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-primary/60 mb-2" for="restaurant_name">Nombre del restaurante</label>
-                <input type="text" id="restaurant_name" name="restaurant_name" value="{{ restaurant_name }}" class="w-full border border-outline/30 rounded px-3 py-2">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1 md:mb-2" for="restaurant_name">Nombre del restaurante</label>
+                <input type="text" id="restaurant_name" name="restaurant_name" value="{{ restaurant_name }}" class="w-full border border-outline/30 rounded px-3 py-2 text-sm">
             </div>
             <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-primary/60 mb-2" for="business_hours">Horario de atención</label>
-                <input type="text" id="business_hours" name="business_hours" value="{{ business_hours }}" class="w-full border border-outline/30 rounded px-3 py-2">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1 md:mb-2" for="business_hours">Horario de atención</label>
+                <input type="text" id="business_hours" name="business_hours" value="{{ business_hours }}" class="w-full border border-outline/30 rounded px-3 py-2 text-sm">
             </div>
             <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-primary/60 mb-2" for="address">Dirección</label>
-                <input type="text" id="address" name="address" value="{{ address }}" class="w-full border border-outline/30 rounded px-3 py-2">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1 md:mb-2" for="address">Dirección</label>
+                <input type="text" id="address" name="address" value="{{ address }}" class="w-full border border-outline/30 rounded px-3 py-2 text-sm">
             </div>
             <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-primary/60 mb-2" for="phone">Teléfono</label>
-                <input type="text" id="phone" name="phone" value="{{ phone }}" class="w-full border border-outline/30 rounded px-3 py-2">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1 md:mb-2" for="phone">Teléfono</label>
+                <input type="text" id="phone" name="phone" value="{{ phone }}" class="w-full border border-outline/30 rounded px-3 py-2 text-sm">
             </div>
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-primary/60 mb-2" for="currency">Moneda</label>
-                    <input type="text" id="currency" name="currency" value="{{ currency }}" class="w-full border border-outline/30 rounded px-3 py-2">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1 md:mb-2" for="currency">Moneda</label>
+                    <input type="text" id="currency" name="currency" value="{{ currency }}" class="w-full border border-outline/30 rounded px-3 py-2 text-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-primary/60 mb-2" for="tax_rate">Impuesto (%)</label>
-                    <input type="number" step="0.1" id="tax_rate" name="tax_rate" value="{{ tax_rate }}" class="w-full border border-outline/30 rounded px-3 py-2">
+                    <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1 md:mb-2" for="tax_rate">Impuesto (%)</label>
+                    <input type="number" step="0.1" id="tax_rate" name="tax_rate" value="{{ tax_rate }}" class="w-full border border-outline/30 rounded px-3 py-2 text-sm">
                 </div>
             </div>
             <div class="pt-4">
-                <button type="submit" class="bg-primary text-on-primary px-6 py-2 rounded text-sm font-bold hover:bg-secondary transition">Guardar cambios</button>
+                <button type="submit" class="w-full sm:w-auto bg-primary text-on-primary px-6 py-2 rounded text-sm font-bold hover:bg-secondary transition">Guardar cambios</button>
             </div>
         </div>
     </form>
-    <p class="text-xs text-primary/50 mt-8 italic">Los cambios se aplicarán en todo el sistema.</p>
+    <p class="text-xs text-primary/50 mt-6 md:mt-8 italic">Los cambios se aplicarán en todo el sistema.</p>
 </div>
 {% endblock %}

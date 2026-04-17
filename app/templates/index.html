@@ -7,64 +7,65 @@
     body { font-family: 'Manrope', sans-serif; }
     .font-newsreader { font-family: 'Newsreader', serif; }
     .serif-italic { font-family: 'Newsreader', serif; font-style: italic; }
+    
+    /* Estilo para prevenir scroll cuando el modal esté abierto */
+    .modal-open { overflow: hidden; }
 </style>
 {% endblock %}
 
 {% block content %}
 
-<!-- Hero Section -->
-<section class="relative min-h-[80vh] flex items-center overflow-hidden px-8">
+<section class="relative min-h-[80vh] flex items-center overflow-hidden px-4 md:px-8">
     <div class="absolute inset-0 z-0">
         <img alt="Artisan hearth sourdough bread" class="w-full h-full object-cover"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNE-BU1c4MnnfVV87-9piDjZxDS1ru4LinjBf_k8QeQfbSOr1op0tJ6TdOUbwE8xmtCDKfu52fKs4zzRi3_1MwpRsHXqz6eOqCTerl7hV2STY0ZJycPhYWpD45FIRNgFdnMOAkCD5m3lHGiDLSIzZCFbqbLZBMFPDB7d9LZcouxiIgllBX8knMABZVYL-ZOHn35nYIDPuo7FyltG37thSzDF5JJhRyeMIInYe7tf1Sxiy7wB460dVQkTW4lFXCeO2OiA7g1Rcx-gzp" />
         <div class="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent"></div>
     </div>
-    <div class="relative z-10 max-w-2xl">
-        <div class="inline-block px-4 py-1 mb-8 bg-secondary-container text-[#1B3022] rounded-full font-label text-[10px] tracking-widest uppercase">
+    <div class="relative z-10 max-w-2xl px-2 md:px-0">
+        <div class="inline-block px-3 md:px-4 py-1 mb-4 md:mb-8 bg-secondary-container text-[#1B3022] rounded-full font-label text-[10px] tracking-widest uppercase">
             Celebración estacional
         </div>
-        <h1 class="text-6xl md:text-8xl font-headline italic tracking-tight text-primary mb-6 leading-none">
+        <h1 class="text-5xl md:text-7xl lg:text-8xl font-headline italic tracking-tight text-primary mb-4 md:mb-6 leading-none">
             {{ site_name }}
         </h1>
-        <p class="text-xl md:text-2xl font-body text-on-surface-variant mb-10 max-w-lg leading-relaxed">
+        <p class="text-lg md:text-xl lg:text-2xl font-body text-on-surface-variant mb-6 md:mb-10 max-w-lg leading-relaxed">
             Saboree la calidez de los granos de fermentación lenta y la perfección cocida al fuego. Utilice el código <span class="font-bold text-secondary italic">HEARTH20</span> para obtener un 20 % de descuento en su primer pedido.
         </p>
-        <div class="flex flex-wrap gap-6">
-            <a href="{{ url_for('main.carta') }}" class="bg-primary hover:bg-primary/90 text-on-primary px-10 py-4 rounded-sm font-label font-medium text-[11px] tracking-widest uppercase transition-all">
+        <div class="flex flex-wrap gap-4 md:gap-6">
+            <a href="{{ url_for('main.carta') }}" class="bg-primary hover:bg-primary/90 text-on-primary px-6 md:px-10 py-3 md:py-4 rounded-sm font-label font-medium text-[11px] tracking-widest uppercase transition-all">
                 ver Menú
             </a>
-            <a href="#" class="px-10 py-4 text-primary font-label font-medium text-[11px] tracking-widest uppercase border-b border-primary/20 hover:border-primary transition-all">
+            <button id="btnHistoria" class="px-6 md:px-10 py-3 md:py-4 text-primary font-label font-medium text-[11px] tracking-widest uppercase border-b border-primary/20 hover:border-primary transition-all cursor-pointer">
                 Nuestra Historia
-            </a>
+            </button>
         </div>
     </div>
 </section>
 
-<!-- Our Story Section -->
-<section class="py-32 px-8 bg-surface-container-low">
-    <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-24 items-center">
+<section class="py-20 md:py-32 px-4 md:px-8 bg-surface-container-low">
+    <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-12 md:gap-24 items-center">
         <div class="relative">
             <div class="aspect-[4/5] rounded-sm overflow-hidden shadow-sm">
                 <img alt="Master baker in kitchen" class="w-full h-full object-cover grayscale-[0.2] contrast-[1.1]"
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzgtCoBdijJXOs4wZwOJXZUs8zY7zQGGYb1OXNTo7vx3K66Xrct4MghUGfNQl6yWFXeyunIR15rHUvJoR6gy50Tph7qj_5gFfbm9PGVXoueyCeUa6QTiKaqu1E_OdvghQI5KyT1h6IP7uKMJEwj_snclg6jjLcOBgjIgCfD0lXEi2xWWrAu3k4uBD57bu3enlSDfqIYg6YeowhvVHi3anBt-wTEqEeumwPUjmgFvGurIZjhqeYG2lV885k2DFG3XW-CuRKZljji5En" />
             </div>
-            <div class="absolute -bottom-10 -right-10 w-56 h-56 rounded-sm overflow-hidden shadow-2xl border-[12px] border-surface-container-low hidden md:block">
+            <div class="absolute -bottom-6 -right-6 md:-bottom-10 md:-right-10 w-40 h-40 md:w-56 md:h-56 rounded-sm overflow-hidden shadow-2xl border-[8px] md:border-[12px] border-surface-container-low hidden md:block">
                 <img alt="Bread crust detail" class="w-full h-full object-cover"
                     src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfNeyAnrkeb5mvXSPu9nkGRMpICOeIZUCkq2O4O8tnOy_D0U6m9rqhxpqIJZzZDVtxsJ9r8GshPOisa6hJASc_VPC1CfkrMsL5bLTVNi8CNqMtnp6ZFyGSPl2f-avZZPEqBkoUaxcw7TRpDk0T23du4HqJRJo2a_fZ8vyOga9T1VgSyM3MJIhzCkjfzzi_mMo9Jh3cCuW1FL3qrdmZp3F9AfCk2hbZqDbzhdyO1XmMCbYUK_8qTbr72vykiqtrWvFaZMVWGUhs_j5o" />
             </div>
         </div>
-        <div class="space-y-10">
-            <h2 class="text-5xl font-headline italic text-primary leading-tight">Un legado escrito en harina</h2>
-            <p class="text-lg text-on-surface-variant font-body leading-relaxed max-w-md">
+        <div class="space-y-6 md:space-y-10">
+            <h2 class="text-4xl md:text-5xl font-headline italic text-primary leading-tight">Un legado escrito en harina</h2>
+            <p class="text-base md:text-lg text-on-surface-variant font-body leading-relaxed max-w-md">
                 Nacido de una obsesión con la antigua artesanía de la elaboración del pan, Hogar Artesanal no es solo una cocina; es un santuario para los sentidos. Cada pan es un viaje de 48 horas de levadura silvestre, granos ancestrales orgánicos y el poder transformador del fuego.
             </p>
-            <div class="flex gap-12 pt-4">
+            <div class="flex gap-8 md:gap-12 pt-4">
                 <div class="flex flex-col">
-                    <span class="text-4xl font-headline italic text-secondary">48h</span>
+                    <span class="text-3xl md:text-4xl font-headline italic text-secondary">48h</span>
                     <p class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant">Fermentación Lenta</p>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-4xl font-headline italic text-secondary">100%</span>
+                    <span class="text-3xl md:text-4xl font-headline italic text-secondary">100%</span>
                     <p class="text-[10px] font-label font-bold uppercase tracking-widest text-on-surface-variant">Granos Orgánicos</p>
                 </div>
             </div>
@@ -72,118 +73,176 @@
     </div>
 </section>
 
-<!-- Featured Dishes - Bento Grid -->
-<section class="py-32 px-8 max-w-7xl mx-auto">
-    <div class="flex flex-col md:flex-row justify-between items-baseline mb-16 gap-4">
+<section class="py-20 md:py-32 px-4 md:px-8 max-w-7xl mx-auto">
+    <div class="flex flex-col md:flex-row justify-between items-baseline mb-8 md:mb-16 gap-4">
         <div class="max-w-xl">
             <span class="font-label text-[10px] font-bold tracking-[0.3em] uppercase text-secondary">El Menú de Degustación</span>
-            <h2 class="text-5xl font-headline italic mt-3 text-primary">Selección Estacional del Chef</h2>
+            <h2 class="text-4xl md:text-5xl font-headline italic mt-3 text-primary">Selección Estacional del Chef</h2>
         </div>
         <a href="{{ url_for('main.carta') }}" class="text-primary font-label font-bold text-[11px] tracking-widest uppercase hover:text-secondary transition-colors flex items-center gap-2">
             Ver el menú completo <span class="material-symbols-outlined text-sm">arrow_forward</span>
         </a>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-6 h-auto md:h-[800px]">
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 h-auto md:h-[800px]">
         <div class="md:col-span-8 group relative overflow-hidden rounded-sm bg-surface-container-low">
             <img alt="Bone marrow" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbFKUmylYcHW2jyJOr0nSubhHymB_Fuqg7eYNsT-k5p3s5TUY66zLXm6B2Fw0vmjj1X3lRsjLvklTd33xwzJgrV2O7HtDgv__rtbcq0VqblVKg0zFM_uaXlZzBQTwQEcbyq8jiLg-mqbSibln9hsowgGTCfs_eiur_cAhJUy2mIUgzRoWB6LuomHPe-oHBG30aVLbDBYOU__D9xZww_njZxXZhNT85bz01xP6IHhQ4YPEpv3k8bKGCUP-fG2l8RRrVtjRtgwoUk1h3" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80"></div>
-            <div class="absolute bottom-0 left-0 right-0 p-10 text-white">
-                <div class="flex gap-2 mb-4">
+            <div class="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-white">
+                <div class="flex gap-2 mb-2 md:mb-4">
                     <span class="bg-secondary px-3 py-1 rounded-sm text-[9px] font-label font-bold uppercase tracking-widest">Firma</span>
                 </div>
-                <h3 class="text-4xl font-headline italic mb-3">Médula ósea patrimonial</h3>
-                <p class="text-white/80 font-body text-sm max-w-md">Servido con masa madre carbonizada, gremolata de perejil y sal marina ahumada.</p>
+                <h3 class="text-2xl md:text-4xl font-headline italic mb-2 md:mb-3">Médula ósea patrimonial</h3>
+                <p class="text-white/80 font-body text-xs md:text-sm max-w-md">Servido con masa madre carbonizada, gremolata de perejil y sal marina ahumada.</p>
             </div>
         </div>
         <div class="md:col-span-4 group relative overflow-hidden rounded-sm bg-surface-container-low">
             <img alt="Foraged bowl" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNAWcB_r1NgL1m7XotUUdpmEUYkgvev8KOo4ILoKxfm875_NeDRTTRjo056zXYtv2cRKgi5yJIYMdkOm51c_P2gY2vM4_ma3EHdW9PI3ZGRtd5IeDfJbnKYzNWFXhGG10_YzGAj9iuvTVym_yb3vEfeuDTJzV2YsymEY_q0HHeF7xxKo39TyZZxCDDNWyPxnAdf4RFFnH-fVNMnauCpClI9kgwgRvw5kTVXB2I1ftd6q-V-SflpOuBFjqYORTg_It8iGc9FXWKxBWX" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
-                <span class="bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-sm text-[9px] font-label font-bold uppercase tracking-widest mb-3 inline-block">Vegan</span>
-                <h3 class="text-2xl font-headline italic">El cuenco forrajero</h3>
+            <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white">
+                <span class="bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-sm text-[9px] font-label font-bold uppercase tracking-widest mb-2 md:mb-3 inline-block">Vegan</span>
+                <h3 class="text-xl md:text-2xl font-headline italic">El cuenco forrajero</h3>
             </div>
         </div>
         <div class="md:col-span-4 group relative overflow-hidden rounded-sm bg-surface-container-low">
             <img alt="Salted caramel tart" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7g8UxPLtfalGxoVyYU1yYLiOw9GGJCLvyFdQlaosoveiVcoxSPi9CtvGA0SlJSlVfVer3xvVTcD9mlzEzGxH8UAqfRFTcJp8Vy8Pl5NLov1sqBrsug-_gAQeR-az4_ccrFaL3DhwawpUSW5wKWVcGTL8mjV302cQTWLZyZ0GQkt1BqDHixH9vu85eDp2d3tVk2Cfk_IN5V2XbJfgDqh-pB9wEAk3oeMcFRQAQpPvhuLnpPORViLbDRu79hYeWOgmtBPkYTND5kGik" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-            <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
-                <h3 class="text-2xl font-headline italic">Tarta de Caramelo Salado</h3>
+            <div class="absolute bottom-0 left-0 right-0 p-6 md:p-8 text-white">
+                <h3 class="text-xl md:text-2xl font-headline italic">Tarta de Caramelo Salado</h3>
             </div>
         </div>
         <div class="md:col-span-8 group relative overflow-hidden rounded-sm bg-surface-container-low">
             <img alt="Burrata" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuC_Y1yWQ4UXUAFdC6vuVkHzzDKVUaH-GyBUn1U9pZusEnNoFQuPQPp_rpd2LnAK52ZQ5nj-I3YUI6e9XRRWyzb0jfKNwHFhRfCkkfoekNdET_9tq0wRAwwibKYFqTMaqIoxZNhns1pVHAM6YYaS_7rOrPXAdOm4b46j4BRdqOcWV8wiKrVxQrarseUrIQCrD9KrDVSpHfSrXQYAH2kA5IiEMHgX1NN_D9YyWNlDsc1X7SaJ6uexrul0unG_SB0zqO14OWpsdxlY1Yvg" />
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-80"></div>
-            <div class="absolute bottom-0 left-0 right-0 p-10 text-white">
-                <h3 class="text-4xl font-headline italic mb-3">Reliquia de burrata</h3>
-                <p class="text-white/80 font-body text-sm max-w-md">Tomates madurados al sol, albahaca triturada y aceite de oliva prensado en frío.</p>
+            <div class="absolute bottom-0 left-0 right-0 p-6 md:p-10 text-white">
+                <h3 class="text-2xl md:text-4xl font-headline italic mb-2 md:mb-3">Reliquia de burrata</h3>
+                <p class="text-white/80 font-body text-xs md:text-sm max-w-md">Tomates madurados al sol, albahaca triturada y aceite de oliva prensado en frío.</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Latest Drinks -->
-<section class="py-32 px-8 bg-[#061b0e] text-[#fbf9f4]">
+<section class="py-20 md:py-32 px-4 md:px-8 bg-[#061b0e] text-[#fbf9f4]">
     <div class="max-w-7xl mx-auto">
-        <div class="text-center mb-20">
+        <div class="text-center mb-12 md:mb-20">
             <span class="font-label text-[10px] font-bold tracking-[0.4em] uppercase text-secondary">El sumiller líquido</span>
-            <h2 class="text-6xl font-headline italic mt-6">Cócteles botánicos y vides</h2>
+            <h2 class="text-4xl md:text-6xl font-headline italic mt-4 md:mt-6">Cócteles botánicos y vides</h2>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
-            <!-- Drink 1 -->
-            <div class="text-center space-y-8 group">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-16">
+            <div class="text-center space-y-6 md:space-y-8 group">
                 <div class="aspect-square rounded-full overflow-hidden border border-secondary/20 p-3 transition-transform duration-700 group-hover:rotate-1">
                     <img alt="Martini" class="w-full h-full object-cover rounded-full"
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuCa4ciaXSLASEwTlPoFE4MrgXqV2VpjoIZgfme5VN1xlj0x8BKmy4kR8kdjztwKOZJySz2gVdpWQ_c5OTRbaOPTIJzOjHPl8Aeg3vh0op_phzTmZl8aVFKu1lntd3-Kci7RjMRJGFBoaY56Ju_FiOW9IyOK719LK6Pw1eytYZxyfNBvuZPzuZsM2pSfPwOqQnKqKA4oGRewvFovBb_jxliYn-316EjzBZdNE97hn04voduXCReJL_wevm2U_R6qbcGiNvUyx4impNry" />
                 </div>
                 <div>
-                    <h4 class="text-2xl font-headline italic mb-2">Romero Ahumado A La Antigua</h4>
-                    <p class="text-[#fbf9f4]/60 text-xs font-body px-8 leading-relaxed">Bourbon infundido con humo de madera de cedro y ramitas de romero recolectadas a mano.</p>
-                    <div class="mt-4 text-secondary font-headline italic text-xl">$16</div>
+                    <h4 class="text-xl md:text-2xl font-headline italic mb-2">Romero Ahumado A La Antigua</h4>
+                    <p class="text-[#fbf9f4]/60 text-xs font-body px-4 md:px-8 leading-relaxed">Bourbon infundido con humo de madera de cedro y ramitas de romero recolectadas a mano.</p>
+                    <div class="mt-4 text-secondary font-headline italic text-lg md:text-xl">$16</div>
                 </div>
             </div>
-            <!-- Drink 2 -->
-            <div class="text-center space-y-8 group">
+            <div class="text-center space-y-6 md:space-y-8 group">
                 <div class="aspect-square rounded-full overflow-hidden border border-secondary/20 p-3 transition-transform duration-700 group-hover:rotate-1">
                     <img alt="Natural wine" class="w-full h-full object-cover rounded-full"
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtUOeS2LndxFUcFBQclX1Ek_SwltiXkBUSejqEh11yj-4IQ92ItsDHQjhxg_gsbpiaWyop1SAv03PRoUBiVnLLsrJvBClMSBApxQXEmjARWgvdp5QsJoHbzMptUon-he4cDKoQKa2BLN3KkbJx-aH_ziMblPEEUB8JDWg16BEEUputNyUudXDxWr8KtYLmkcGLcyn6FcejYrX7FuxEJFeX7-ft3dtvNqo-f35Snwt9fDkQyTwruWFZENJKaMtRoMPy9yu8m3DMpjnl" />
                 </div>
                 <div>
-                    <h4 class="text-2xl font-headline italic mb-2">Finca Natural Naranja</h4>
-                    <p class="text-[#fbf9f4]/60 text-xs font-body px-8 leading-relaxed">Unfiltered 2021 skin-contact Malvasia with notes of apricot and wild honey.</p>
-                    <div class="mt-4 text-secondary font-headline italic text-xl">$14</div>
+                    <h4 class="text-xl md:text-2xl font-headline italic mb-2">Finca Natural Naranja</h4>
+                    <p class="text-[#fbf9f4]/60 text-xs font-body px-4 md:px-8 leading-relaxed">Unfiltered 2021 skin-contact Malvasia with notes of apricot and wild honey.</p>
+                    <div class="mt-4 text-secondary font-headline italic text-lg md:text-xl">$14</div>
                 </div>
             </div>
-            <!-- Drink 3 -->
-            <div class="text-center space-y-8 group">
+            <div class="text-center space-y-6 md:space-y-8 group">
                 <div class="aspect-square rounded-full overflow-hidden border border-secondary/20 p-3 transition-transform duration-700 group-hover:rotate-1">
                     <img alt="Herbal botanical" class="w-full h-full object-cover rounded-full"
                         src="https://lh3.googleusercontent.com/aida-public/AB6AXuA2w6vxR0JZ7UyX7RVxQQY-NT1SqHNOdXA99mjQMRkQL93Pa51Y7Xp7SqApl4VrkXjwXKGPqo1jKlZ1Anqw0u7pgWlAxwdqNrOo5dhM1epP2TH2CXhjXi9NaAsZKOKWhmsW55pv64uwkFQJg_qn85LcPo1H9x9cA1K8ewT1DjBPp9I92gqzWVAYnloSlXMuDV8pbb-fQTOC0LhsNr-_mr2yB4TRYptBF5CMfGH9p5tgb1ytQBBbtt17msudkms9gJF24kdoNP9OX7z1" />
                 </div>
                 <div>
-                    <h4 class="text-2xl font-headline italic mb-2">Botánico de pepino y menta</h4>
-                    <p class="text-[#fbf9f4]/60 text-xs font-body px-8 leading-relaxed">Jugo de pepino prensado en frío, menta de jardín y tónico de enebro casero.</p>
-                    <div class="mt-4 text-secondary font-headline italic text-xl">$11</div>
+                    <h4 class="text-xl md:text-2xl font-headline italic mb-2">Botánico de pepino y menta</h4>
+                    <p class="text-[#fbf9f4]/60 text-xs font-body px-4 md:px-8 leading-relaxed">Jugo de pepino prensado en frío, menta de jardín y tónico de enebro casero.</p>
+                    <div class="mt-4 text-secondary font-headline italic text-lg md:text-xl">$11</div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="py-40 px-8 text-center bg-background">
-    <div class="max-w-4xl mx-auto space-y-12">
-        <h2 class="text-6xl md:text-7xl font-headline italic leading-[1.1] text-primary">Preparado con intención.<br>Servido con alma.</h2>
-        <p class="text-xl text-on-surface-variant font-body max-w-2xl mx-auto">Únase a nosotros en la mesa y experimente el arte de la comida editorial.</p>
-        <div class="pt-6">
-            <a href="#" class="bg-primary hover:bg-primary/95 text-on-primary px-14 py-6 rounded-sm font-label font-bold text-[11px] tracking-[0.2em] uppercase transition-all shadow-xl shadow-primary/10 active:scale-95 inline-block">
+<section class="py-20 md:py-40 px-4 md:px-8 text-center bg-background">
+    <div class="max-w-4xl mx-auto space-y-8 md:space-y-12">
+        <h2 class="text-4xl md:text-6xl lg:text-7xl font-headline italic leading-[1.1] text-primary">Preparado con intención.<br>Servido con alma.</h2>
+        <p class="text-lg md:text-xl text-on-surface-variant font-body max-w-2xl mx-auto">Únase a nosotros en la mesa y experimente el arte de la comida editorial.</p>
+        <div class="pt-4 md:pt-6">
+            <a href="#" class="bg-primary hover:bg-primary/95 text-on-primary px-8 md:px-14 py-4 md:py-6 rounded-sm font-label font-bold text-[11px] tracking-[0.2em] uppercase transition-all shadow-xl shadow-primary/10 active:scale-95 inline-block">
                 Reserva tu experiencia
             </a>
         </div>
     </div>
 </section>
+
+<div id="modalHistoria" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+    <div id="modalOverlay" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+    
+    <div class="relative bg-surface-container-low max-w-2xl w-full rounded-sm shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+        <div class="p-8 md:p-12">
+            <button id="closeModal" class="absolute top-6 right-6 text-primary hover:rotate-90 transition-transform duration-300">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            
+            <div class="space-y-6">
+                <span class="font-label text-[10px] font-bold tracking-[0.3em] uppercase text-secondary">Próximamente</span>
+                <h2 class="text-3xl md:text-5xl font-headline italic text-primary leading-tight">Hard Bar, Restaurante y Cafetería</h2>
+                
+                <p class="font-newsreader italic text-xl text-primary/80">Llega un nuevo lugar para vivir momentos únicos…</p>
+                
+                <div class="space-y-4 text-on-surface-variant font-body text-base md:text-lg leading-relaxed">
+                    <p>🍽️ Hard Bar abre sus puertas para sorprenderte. Un espacio pensado para disfrutar:</p>
+                    <ul class="space-y-2 list-none">
+                        <li>☕ <span class="font-bold">Cafetería</span> con el mejor aroma y sabor</li>
+                        <li>🍔 <span class="font-bold">Platos irresistibles</span></li>
+                        <li>🍹 <span class="font-bold">Tragos y coctelería</span> para compartir</li>
+                        <li>🎶 <span class="font-bold">Ambiente moderno</span>, acogedor y con toda la vibra que estabas esperando</li>
+                    </ul>
+                    <p>Ven a descubrir tu nuevo punto de encuentro. Perfecto para desayunar, almorzar, cenar o simplemente relajarte con amigos.</p>
+                </div>
+
+                <div class="pt-6 border-t border-primary/10">
+                    <p class="text-sm font-label uppercase tracking-widest text-secondary font-bold mb-2">📍 Ubicación</p>
+                    <p class="text-on-surface-variant">Muy pronto abrimos nuestras puertas en la región. ¡No te lo puedes perder!</p>
+                </div>
+                
+                <p class="text-xs text-on-surface-variant/60 italic mt-4">Sigue nuestras redes y entérate de promociones especiales por inauguración 💥</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('modalHistoria');
+    const btnAbrir = document.getElementById('btnHistoria');
+    const btnCerrar = document.getElementById('closeModal');
+    const overlay = document.getElementById('modalOverlay');
+
+    function toggleModal() {
+        modal.classList.toggle('hidden');
+        document.body.classList.toggle('modal-open');
+    }
+
+    btnAbrir.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleModal();
+    });
+
+    btnCerrar.addEventListener('click', toggleModal);
+    overlay.addEventListener('click', toggleModal);
+
+    // Cerrar con tecla Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+            toggleModal();
+        }
+    });
+</script>
 
 {% endblock %}

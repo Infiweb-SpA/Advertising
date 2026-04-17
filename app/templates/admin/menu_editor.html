@@ -3,43 +3,43 @@
 {% block title %}Editor de Menú{% endblock %}
 
 {% block content %}
-<header class="mb-10">
+<header class="mb-6 md:mb-10">
     <span class="text-[10px] uppercase tracking-[0.2em] text-secondary font-bold">Gestión de carta</span>
-    <h2 class="text-4xl font-headline italic tracking-tight text-primary mt-2">Editor de Menú</h2>
-    <p class="text-primary/60 font-body mt-2">Administra productos, categorías y precios.</p>
+    <h2 class="text-3xl md:text-4xl font-headline italic tracking-tight text-primary mt-2">Editor de Menú</h2>
+    <p class="text-primary/60 font-body mt-2 text-sm md:text-base">Administra productos, categorías y precios.</p>
 </header>
 
-<div class="bg-white rounded-lg border border-outline/30 overflow-hidden shadow-sm p-6">
-    <div class="flex justify-between items-center mb-6">
+<div class="bg-white rounded-lg border border-outline/30 overflow-hidden shadow-sm p-4 md:p-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
         <h3 class="font-bold uppercase text-sm tracking-widest">Productos actuales</h3>
-        <button onclick="openCreateModal()" class="bg-primary text-on-primary px-4 py-2 rounded text-xs font-bold hover:bg-primary/90 transition-colors">+ Nuevo Producto</button>
+        <button onclick="openCreateModal()" class="bg-primary text-on-primary px-4 py-2 rounded text-xs font-bold hover:bg-primary/90 transition-colors w-full md:w-auto">+ Nuevo Producto</button>
     </div>
     <div class="overflow-x-auto">
-        <table class="w-full text-left">
+        <table class="w-full text-left min-w-[600px] md:min-w-full">
             <thead>
                 <tr class="bg-surface-container">
-                    <th class="px-4 py-3 text-[10px] font-bold uppercase">Nombre</th>
-                    <th class="px-4 py-3 text-[10px] font-bold uppercase">Categoría</th>
-                    <th class="px-4 py-3 text-[10px] font-bold uppercase text-right">Precio</th>
-                    <th class="px-4 py-3 text-[10px] font-bold uppercase text-center">Disponible</th>
-                    <th class="px-4 py-3 text-[10px] font-bold uppercase text-center">Acciones</th>
+                    <th class="px-3 md:px-4 py-3 text-[10px] font-bold uppercase">Nombre</th>
+                    <th class="px-3 md:px-4 py-3 text-[10px] font-bold uppercase">Categoría</th>
+                    <th class="px-3 md:px-4 py-3 text-[10px] font-bold uppercase text-right">Precio</th>
+                    <th class="px-3 md:px-4 py-3 text-[10px] font-bold uppercase text-center">Disponible</th>
+                    <th class="px-3 md:px-4 py-3 text-[10px] font-bold uppercase text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline/10">
                 {% for product in products %}
                 <tr>
-                    <td class="px-4 py-3 font-medium text-primary">{{ product.name }}</td>
-                    <td class="px-4 py-3 text-primary/70">{{ product.category.name if product.category else '-' }}</td>
-                    <td class="px-4 py-3 text-right font-mono">${{ "%.2f"|format(product.price) }}</td>
-                    <td class="px-4 py-3 text-center">
+                    <td class="px-3 md:px-4 py-3 font-medium text-primary text-sm">{{ product.name }}</td>
+                    <td class="px-3 md:px-4 py-3 text-primary/70 text-sm">{{ product.category.name if product.category else '-' }}</td>
+                    <td class="px-3 md:px-4 py-3 text-right font-mono text-sm">${{ "%.2f"|format(product.price) }}</td>
+                    <td class="px-3 md:px-4 py-3 text-center">
                         {% if product.available %}
                         <span class="inline-flex h-2 w-2 rounded-full bg-green-500"></span>
                         {% else %}
                         <span class="inline-flex h-2 w-2 rounded-full bg-gray-300"></span>
                         {% endif %}
                     </td>
-                    <td class="px-4 py-3 text-center">
-                        <div class="flex items-center justify-center gap-2">
+                    <td class="px-3 md:px-4 py-3 text-center">
+                        <div class="flex items-center justify-center gap-1 md:gap-2">
                             <button 
                                 onclick="openEditModal(
                                     {{ product.id }},
@@ -69,19 +69,19 @@
     </div>
 </div>
 
-<!-- Modal Producto -->
+<!-- Modal Producto (responsivo) -->
 <div id="productModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-lg shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-        <div class="px-6 py-4 border-b border-outline/30 flex justify-between items-center">
-            <h3 id="modalTitle" class="text-xl font-headline italic text-primary">Nuevo Producto</h3>
+        <div class="px-4 md:px-6 py-4 border-b border-outline/30 flex justify-between items-center">
+            <h3 id="modalTitle" class="text-lg md:text-xl font-headline italic text-primary">Nuevo Producto</h3>
             <button onclick="closeModal()" class="text-primary/50 hover:text-primary">
                 <span class="material-symbols-outlined">close</span>
             </button>
         </div>
         
-        <form id="productForm" method="POST" class="p-6 space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-                <div class="col-span-2">
+        <form id="productForm" method="POST" class="p-4 md:p-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
                     <label class="block text-[10px] font-bold uppercase tracking-wider text-primary/60 mb-1">Nombre *</label>
                     <input type="text" name="name" id="formName" required class="w-full bg-surface border border-outline/50 rounded px-3 py-2 text-sm focus:border-secondary outline-none">
                 </div>
@@ -110,7 +110,7 @@
                 <input type="url" name="image_url" id="formImageUrl" class="w-full bg-surface border border-outline/50 rounded px-3 py-2 text-sm focus:border-secondary outline-none">
             </div>
             
-            <div class="flex gap-4 pt-2">
+            <div class="flex flex-wrap gap-4 pt-2">
                 <label class="flex items-center gap-2 cursor-pointer">
                     <input type="checkbox" name="available" id="formAvailable" checked class="rounded border-outline text-secondary focus:ring-secondary">
                     <span class="text-xs font-medium">Disponible</span>

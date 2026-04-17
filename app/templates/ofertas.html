@@ -35,23 +35,22 @@
 {% endblock %}
 
 {% block content %}
-<main class="pt-8 pb-32 px-6 max-w-7xl mx-auto flex flex-col lg:flex-row gap-12">
+<main class="pt-8 pb-32 px-4 md:px-6 max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 lg:gap-12">
     <!-- Ofertas Section -->
     <div class="flex-grow">
-        <header class="mb-12 text-center lg:text-left">
-            <span class="label-md uppercase tracking-[0.2em] text-primary mb-4 block font-label font-semibold">Promociones</span>
-            <h1 class="text-5xl md:text-7xl font-headline italic tracking-tight text-on-surface mb-6">Ofertas Especiales</h1>
-            <p class="text-on-surface/70 max-w-2xl font-body text-lg leading-relaxed">
+        <header class="mb-8 md:mb-12 text-center lg:text-left">
+            <span class="label-md uppercase tracking-[0.2em] text-primary mb-4 block font-label font-semibold text-sm">Promociones</span>
+            <h1 class="text-4xl md:text-5xl lg:text-7xl font-headline italic tracking-tight text-on-surface mb-4 md:mb-6">Ofertas Especiales</h1>
+            <p class="text-on-surface/70 max-w-2xl font-body text-base md:text-lg leading-relaxed">
                 Descubre nuestros platos y bebidas con precios especiales por tiempo limitado.
             </p>
         </header>
 
         {% if products %}
-        <!-- Grid de Ofertas -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
             {% for product in products %}
             <div class="group flex flex-col product-card">
-                <div class="relative overflow-hidden rounded-lg mb-6 aspect-[4/5] bg-surface-container">
+                <div class="relative overflow-hidden rounded-lg mb-4 md:mb-6 aspect-[4/5] bg-surface-container">
                     {% if product.image_url %}
                     <img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         alt="{{ product.name }}"
@@ -61,7 +60,6 @@
                         <span class="material-symbols-outlined text-6xl text-outline/30">restaurant</span>
                     </div>
                     {% endif %}
-                    <!-- Badge de oferta -->
                     <div class="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded text-[10px] font-label font-bold tracking-wider uppercase">
                         Oferta
                     </div>
@@ -72,13 +70,13 @@
                     {% endif %}
                 </div>
                 <div class="flex justify-between items-start mb-2">
-                    <h3 class="text-2xl font-headline font-bold text-on-surface">{{ product.name }}</h3>
+                    <h3 class="text-xl md:text-2xl font-headline font-bold text-on-surface">{{ product.name }}</h3>
                     <div class="text-right">
-                        <span class="text-sm text-on-surface/50 line-through">${{ "%.2f"|format(product.price * 1.2) }}</span>
-                        <span class="text-lg font-headline font-semibold text-primary block">${{ "%.2f"|format(product.price) }}</span>
+                        <span class="text-xs md:text-sm text-on-surface/50 line-through">${{ "%.2f"|format(product.price * 1.2) }}</span>
+                        <span class="text-lg md:text-xl font-headline font-semibold text-primary block">${{ "%.2f"|format(product.price) }}</span>
                     </div>
                 </div>
-                <p class="text-on-surface/70 font-body text-sm leading-relaxed mb-6">
+                <p class="text-on-surface/70 font-body text-sm leading-relaxed mb-4 md:mb-6">
                     {{ product.description or 'Aprovecha esta oferta especial por tiempo limitado.' }}
                 </p>
                 <button data-product-id="{{ product.id }}" data-product-name="{{ product.name }}" data-product-price="{{ product.price }}"
@@ -89,11 +87,10 @@
             {% endfor %}
         </div>
         {% else %}
-        <!-- Estado vacío -->
-        <div class="text-center py-20 bg-surface-container rounded-lg">
-            <span class="material-symbols-outlined text-6xl text-outline/30 mb-4">local_offer</span>
-            <h3 class="font-headline italic text-2xl text-primary mb-2">No hay ofertas activas</h3>
-            <p class="font-body text-on-surface/70 mb-6">Por el momento no tenemos productos en oferta.</p>
+        <div class="text-center py-16 md:py-20 bg-surface-container rounded-lg">
+            <span class="material-symbols-outlined text-5xl md:text-6xl text-outline/30 mb-4">local_offer</span>
+            <h3 class="font-headline italic text-xl md:text-2xl text-primary mb-2">No hay ofertas activas</h3>
+            <p class="font-body text-on-surface/70 mb-6 text-sm">Por el momento no tenemos productos en oferta.</p>
             <a href="{{ url_for('main.carta') }}" class="inline-block bg-primary text-on-primary px-6 py-3 rounded font-label font-bold uppercase tracking-wider text-xs hover:bg-secondary transition-colors">
                 Ver menú completo
             </a>
@@ -101,12 +98,11 @@
         {% endif %}
     </div>
 
-    <!-- Order Summary Sidebar - IDÉNTICO A CARTA.HTML -->
-    <aside class="lg:w-80 shrink-0">
+    <!-- Order Summary Sidebar (oculto en móvil) -->
+    <aside class="hidden lg:block lg:w-80 shrink-0">
         <div class="sticky top-32 bg-surface-container rounded-lg p-6 shadow-sm border border-outline/10">
             <h2 class="text-2xl font-headline italic mb-6 text-primary">Orden a la mesa</h2>
             <div id="cart-items-container" class="space-y-4 mb-8">
-                <!-- Los items del carrito se insertarán aquí con JavaScript -->
                 <p class="text-sm text-on-surface/50 text-center py-4">Tu pedido está vacío</p>
             </div>
             <div class="space-y-4">
@@ -139,9 +135,45 @@
     </aside>
 </main>
 
-<!-- Mobile Order Toggle (FAB) -->
-<button id="mobile-cart-toggle" class="lg:hidden fixed bottom-8 right-8 bg-primary text-on-primary w-16 h-16 rounded-full flex items-center justify-center shadow-2xl active:scale-95 transition-transform z-40">
-    <span class="material-symbols-outlined text-2xl">restaurante</span>
+<!-- Mobile Order Drawer (idéntico a carta.html) -->
+<div id="mobile-cart-drawer" class="lg:hidden fixed inset-0 z-50 pointer-events-none">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300 pointer-events-auto hidden" id="drawer-overlay"></div>
+    <div class="absolute bottom-0 left-0 right-0 bg-surface-container rounded-t-2xl p-4 md:p-6 transform translate-y-full transition-transform duration-300 pointer-events-auto max-h-[80vh] overflow-y-auto" id="cart-drawer">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl md:text-2xl font-headline italic text-primary">Tu pedido</h2>
+            <button id="close-drawer" class="text-primary text-2xl">&times;</button>
+        </div>
+        <div id="mobile-cart-items" class="space-y-4 mb-6">
+            <p class="text-sm text-on-surface/50 text-center py-4">Tu pedido está vacío</p>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-[10px] uppercase tracking-widest font-bold text-on-surface/60 mb-2" for="mobile-order-type">Tipo de pedido</label>
+                <select id="mobile-order-type" class="w-full bg-surface border-outline/20 rounded px-3 py-2 text-sm">
+                    <option value="dine_in">Para servir en mesa</option>
+                    <option value="takeaway">Para llevar</option>
+                </select>
+            </div>
+            <div id="mobile-table-container">
+                <label class="block text-[10px] uppercase tracking-widest font-bold text-on-surface/60 mb-2" for="mobile-table-number">Número de mesa</label>
+                <input class="w-full bg-surface border-outline/20 rounded px-3 py-2 text-sm" id="mobile-table-number" placeholder="Enter table #" type="text" />
+            </div>
+            <div class="pt-4 border-t border-outline/20">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="font-label font-bold uppercase text-xs">Total</span>
+                    <span id="mobile-cart-total" class="text-xl font-headline font-bold text-primary">$0.00</span>
+                </div>
+                <button id="mobile-submit-order"
+                    class="w-full bg-primary text-on-primary py-4 rounded font-label font-bold uppercase tracking-widest text-xs hover:bg-secondary transition-all">
+                    Enviar pedido
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<button id="mobile-cart-toggle" class="lg:hidden fixed bottom-8 right-8 bg-primary text-on-primary w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-2xl active:scale-95 transition-transform z-40">
+    <span class="material-symbols-outlined text-xl md:text-2xl">restaurante</span>
     <span id="mobile-cart-count" class="absolute -top-1 -right-1 bg-secondary text-white w-6 h-6 rounded-full text-[10px] flex items-center justify-center font-bold">0</span>
 </button>
 {% endblock %}
