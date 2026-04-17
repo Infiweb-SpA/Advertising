@@ -65,11 +65,20 @@
                     <th class="px-4 md:px-6 py-3 md:py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-center">Entregado</th>
                     <th class="px-4 md:px-6 py-3 md:py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-right">Total</th>
                     <th class="px-4 md:px-6 py-3 md:py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-right">Timer</th>
+                    <th class="px-4 md:px-6 py-3 md:py-4 text-[10px] font-bold uppercase tracking-wider text-primary/60 border-b text-center">Acciones</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline/10" id="dinein-tbody">
                 {% for order in dine_in_orders %}
-                <tr class="hover:bg-surface-container/30 order-row" data-order-id="{{ order.id }}" data-status="{{ order.status }}">
+                {% set order_items = [] %}
+                {% for item in order.items %}
+                    {% set _ = order_items.append({
+                        'quantity': item.quantity,
+                        'name': item.product.name if item.product else 'Producto',
+                        'unit_price': "%.2f"|format(item.unit_price)
+                    }) %}
+                {% endfor %}
+                <tr class="hover:bg-surface-container/30 order-row" data-order-id="{{ order.id }}" data-status="{{ order.status }}" data-items='{{ order_items|tojson }}' data-total="{{ "%.2f"|format(order.total) }}">
                     <td class="px-4 md:px-6 py-4 md:py-5 align-top">
                         <div class="flex items-center gap-2 md:gap-3">
                             <span class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-xs md:text-sm">{{ order.table.number if order.table else '?' }}</span>
@@ -126,9 +135,25 @@
                         {% set elapsed = (now - order.created_at).total_seconds() // 60 %}
                         {{ "%02d:%02d"|format(elapsed//60, elapsed%60) }}
                     </td>
+                    <td class="px-4 md:px-6 py-4 md:py-5 text-center align-top">
+                        <div class="flex justify-center gap-2">
+                            <button onclick="openPrintModalFromRow(this)" 
+                                    class="bg-primary hover:bg-primary/90 text-white p-2 rounded-lg text-xs font-bold transition-all hover:scale-105 shadow-sm"
+                                    title="Imprimir comanda">
+                                <span class="material-symbols-outlined text-sm">print</span>
+                            </button>
+                            <label class="inline-flex items-center cursor-pointer">
+                                <input type="checkbox" 
+                                       class="entregado-checkbox form-checkbox h-4 w-4 md:h-5 md:w-5 text-green-600 rounded border-gray-300 focus:ring-green-500"
+                                       data-order-id="{{ order.id }}"
+                                       {% if order.status == 'completed' %}checked disabled{% endif %}
+                                       onchange="marcarEntregado(this, {{ order.id }})">
+                            </label>
+                        </div>
+                    </td>
                 </tr>
                 {% else %}
-                <tr id="no-dinein-orders"><td colspan="6" class="px-6 py-8 text-center text-primary/50">No hay pedidos recientes para mostrar. ¡Envía uno desde la carta!</td></tr>
+                <tr id="no-dinein-orders"><td colspan="7" class="px-6 py-8 text-center text-primary/50">No hay pedidos recientes para mostrar. ¡Envía uno desde la carta!</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -159,7 +184,15 @@
             </thead>
             <tbody class="divide-y divide-outline/10" id="takeaway-tbody">
                 {% for order in takeaway_orders %}
-                <tr class="hover:bg-surface-container/30 order-row" data-order-id="{{ order.id }}" data-status="{{ order.status }}">
+                {% set order_items = [] %}
+                {% for item in order.items %}
+                    {% set _ = order_items.append({
+                        'quantity': item.quantity,
+                        'name': item.product.name if item.product else 'Producto',
+                        'unit_price': "%.2f"|format(item.unit_price)
+                    }) %}
+                {% endfor %}
+                <tr class="hover:bg-surface-container/30 order-row" data-order-id="{{ order.id }}" data-status="{{ order.status }}" data-items='{{ order_items|tojson }}' data-total="{{ "%.2f"|format(order.total) }}">
                     <td class="px-4 md:px-6 py-4 md:py-5 align-top">
                         <div class="flex items-center gap-2 md:gap-3">
                             <span class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-secondary text-on-primary flex items-center justify-center font-bold text-xs md:text-sm">#{{ order.id }}</span>
@@ -217,9 +250,16 @@
                         {{ "%02d:%02d"|format(elapsed//60, elapsed%60) }}
                     </td>
                     <td class="px-4 md:px-6 py-4 md:py-5 text-center align-top">
-                        <button onclick="openWhatsAppModal('{{ order.id }}')" class="bg-green-600 hover:bg-green-700 text-white px-2 md:px-3 py-1.5 rounded text-xs font-bold flex items-center gap-1 mx-auto">
-                            <span class="material-symbols-outlined text-sm">send</span> <span class="hidden md:inline">WhatsApp</span>
-                        </button>
+                        <div class="flex justify-center gap-2">
+                            <button onclick="openPrintModalFromRow(this)" 
+                                    class="bg-primary hover:bg-primary/90 text-white p-2 rounded-lg text-xs font-bold transition-all hover:scale-105 shadow-sm"
+                                    title="Imprimir comanda">
+                                <span class="material-symbols-outlined text-sm">print</span>
+                            </button>
+                            <button onclick="openWhatsAppModal('{{ order.id }}')" class="bg-green-600 hover:bg-green-700 text-white p-2 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm">
+                                <span class="material-symbols-outlined text-sm">send</span>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 {% else %}
@@ -230,7 +270,7 @@
     </div>
 </div>
 
-<!-- Modal WhatsApp (igual) -->
+<!-- Modal WhatsApp -->
 <div id="whatsappModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
     <div class="bg-white p-6 md:p-8 rounded-lg shadow-2xl max-w-md w-full">
         <h3 class="text-xl font-headline italic text-primary mb-4">Enviar aviso por WhatsApp</h3>
@@ -246,6 +286,100 @@
     </div>
 </div>
 
+<!-- Modal de Impresión -->
+<div id="printModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="px-6 py-4 bg-surface-container border-b border-outline/30 flex justify-between items-center">
+            <div>
+                <h3 class="text-xl font-bold text-primary">Imprimir Comanda</h3>
+                <p class="text-sm text-primary/60">Vista previa del ticket de cocina</p>
+            </div>
+            <button onclick="closePrintModal()" class="p-2 hover:bg-surface rounded-full transition-colors">
+                <span class="material-symbols-outlined text-primary">close</span>
+            </button>
+        </div>
+        
+        <div class="p-4 bg-gray-100 border-b border-outline/30 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center gap-3 flex-wrap">
+                <label class="text-sm font-medium text-primary">Impresora:</label>
+                <select id="printerSelect" class="bg-white border border-outline/50 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-secondary focus:border-secondary min-w-[200px]">
+                    <option value="default">🖨️ Impresora del Sistema</option>
+                    <optgroup label="Impresoras Térmicas USB" id="usbPrintersGroup">
+                        <option value="" disabled>Click en "Buscar USB" para detectar</option>
+                    </optgroup>
+                    <optgroup label="Formatos Térmicos">
+                        <option value="58mm">🧾 Térmica 58mm (2")</option>
+                        <option value="80mm" selected>🧾 Térmica 80mm (3")</option>
+                        <option value="76mm">🧾 Térmica 76mm</option>
+                    </optgroup>
+                </select>
+                
+                <button onclick="scanUSBPrinters()" class="bg-surface hover:bg-surface-container border border-outline/50 px-3 py-2 rounded text-xs font-medium flex items-center gap-1 transition-colors">
+                    <span class="material-symbols-outlined text-sm" id="scanIcon">usb</span>
+                    Buscar USB
+                </button>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <button onclick="configurePrinter()" class="px-4 py-2 border border-outline/50 rounded text-sm font-medium hover:bg-surface transition-colors">
+                    Configurar
+                </button>
+                <button onclick="executePrint()" class="px-6 py-2 bg-primary text-on-primary rounded text-sm font-bold hover:bg-primary/90 transition-colors flex items-center gap-2 shadow-lg">
+                    <span class="material-symbols-outlined text-sm">print</span>
+                    Imprimir
+                </button>
+            </div>
+        </div>
+        
+        <div class="flex-1 overflow-auto p-8 bg-gray-50 flex justify-center">
+            <div id="ticketPreview" class="bg-white p-6 shadow-lg" style="width: 80mm; min-height: 200px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.4;">
+                <!-- Contenido dinámico -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Configuración de Impresora -->
+<div id="printerConfigModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-[110] hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-2xl max-w-md w-full p-6">
+        <h3 class="text-lg font-bold text-primary mb-4">Configuración de Impresora</h3>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-primary mb-1">Nombre identificador</label>
+                <input type="text" id="configPrinterName" class="w-full bg-surface border border-outline/50 rounded px-3 py-2 text-sm" placeholder="Ej: Cocina-Principal">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-primary mb-1">Ancho del ticket</label>
+                <select id="configPaperWidth" class="w-full bg-surface border border-outline/50 rounded px-3 py-2 text-sm">
+                    <option value="58mm">58 mm (Tickets pequeños)</option>
+                    <option value="80mm" selected>80 mm (Estándar cocina)</option>
+                    <option value="76mm">76 mm (Legacy)</option>
+                </select>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-primary mb-1">Método de conexión</label>
+                <select id="configConnection" class="w-full bg-surface border border-outline/50 rounded px-3 py-2 text-sm">
+                    <option value="system">Sistema Operativo (Predeterminado)</option>
+                    <option value="usb">USB Directo (WebUSB)</option>
+                </select>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <input type="checkbox" id="configAutoPrint" class="rounded border-gray-300 text-secondary focus:ring-secondary">
+                <label for="configAutoPrint" class="text-sm text-primary">Imprimir automáticamente nuevos pedidos</label>
+            </div>
+        </div>
+        
+        <div class="flex justify-end gap-3 mt-6">
+            <button onclick="closePrinterConfig()" class="px-4 py-2 border border-outline/50 rounded text-sm hover:bg-surface transition-colors">Cancelar</button>
+            <button onclick="savePrinterConfig()" class="px-4 py-2 bg-primary text-on-primary rounded text-sm font-bold hover:bg-primary/90 transition-colors">Guardar</button>
+        </div>
+    </div>
+</div>
+
 <!-- Footer -->
 <footer class="mt-12 md:mt-20 pt-8 md:pt-12 pb-6 md:pb-8 border-t border-outline/30 flex flex-col md:flex-row justify-between items-center text-[10px] uppercase tracking-widest text-primary/50">
     <div class="font-newsreader text-lg text-primary normal-case italic">La editorial culinaria</div>
@@ -254,9 +388,7 @@
 </footer>
 
 <script>
-    // ... (El resto del JavaScript permanece igual que en tu archivo original, sin cambios) ...
-    // Incluyo aquí el script completo para que no se pierda, pero está idéntico al original.
-    // Variables globales para contadores
+    // Variables globales
     let counts = {
         received: {{ orders_received_count }},
         preparing: {{ orders_preparing_count }},
@@ -264,6 +396,16 @@
         served: {{ orders_served_count }},
         completed: {{ orders_completed_count }},
         total: {{ dine_in_orders|length + takeaway_orders|length }}
+    };
+
+    let currentOrderData = null;
+    let availablePrinters = [];
+    let printerConfig = JSON.parse(localStorage.getItem('printerConfig')) || {
+        defaultPrinter: 'default',
+        paperWidth: '80mm',
+        connection: 'system',
+        autoPrint: false,
+        name: ''
     };
 
     // Cambio de pestañas
@@ -305,7 +447,7 @@
         });
     });
 
-    // --- Función para actualizar los contadores en la UI ---
+    // Funciones de actualización de estado
     function updateCounters() {
         const preparingEl = document.getElementById('count-preparing');
         if (preparingEl) {
@@ -327,7 +469,6 @@
         }
     }
 
-    // --- Función para actualizar estado a "En preparación" ---
     function updateStatusToPreparing(orderId) {
         if (!confirm('¿Marcar este pedido como "En preparación"?')) {
             return;
@@ -372,7 +513,6 @@
         });
     }
 
-    // --- Función para marcar como Entregado (checkbox) ---
     function marcarEntregado(checkbox, orderId) {
         if (checkbox.checked) {
             if (!confirm('¿Confirmar que este pedido ha sido entregado?')) {
@@ -433,7 +573,6 @@
         }
     }
 
-    // --- Sistema de notificaciones ---
     function showNotification(message, type = 'success') {
         const notification = document.createElement('div');
         notification.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-50 font-medium text-sm transition-all duration-300 transform translate-x-full ${
@@ -454,7 +593,7 @@
         }, 3000);
     }
 
-    // --- Lógica del modal WhatsApp ---
+    // WhatsApp Modal
     const modal = document.getElementById('whatsappModal');
     const numberInput = document.getElementById('whatsappNumber');
     const orderIdInput = document.getElementById('currentOrderId');
@@ -487,6 +626,301 @@
     modal.addEventListener('click', (e) => {
         if (e.target === modal) closeWhatsAppModal();
     });
+
+    // ============================================
+    // FUNCIONES DE IMPRESIÓN DE TICKETS
+    // ============================================
+
+    function openPrintModalFromRow(button) {
+        const row = button.closest('tr');
+        const orderId = row.getAttribute('data-order-id');
+        const isTakeaway = row.closest('#takeaway-orders') !== null;
+        const reference = isTakeaway ? `#${orderId}` : `Mesa ${row.querySelector('td:first-child .font-bold')?.textContent.replace('Mesa ', '') || 'N/A'}`;
+        
+        let items = [];
+        try {
+            const itemsData = row.getAttribute('data-items');
+            items = JSON.parse(itemsData || '[]');
+        } catch (e) {
+            console.error('Error parsing items:', e);
+            // Fallback: extraer del DOM
+            const detailRows = row.querySelectorAll('td:nth-child(2) .flex.justify-between');
+            detailRows.forEach(detailRow => {
+                const spans = detailRow.querySelectorAll('span');
+                if (spans.length >= 3) {
+                    const qtyText = spans[0].textContent.split('x')[0].trim();
+                    const nameText = spans[0].textContent.split('x')[1].trim();
+                    items.push({
+                        quantity: qtyText,
+                        name: nameText,
+                        unit_price: spans[1].textContent.replace('$', '').replace(' c/u', '').trim()
+                    });
+                }
+            });
+        }
+        
+        const total = row.getAttribute('data-total') || '0.00';
+        
+        currentOrderData = {
+            id: orderId,
+            type: isTakeaway ? 'takeaway' : 'dine-in',
+            reference: reference,
+            items: items,
+            total: total,
+            timestamp: new Date().toLocaleString('es-CL')
+        };
+        
+        generateTicketPreview();
+        
+        document.getElementById('printModal').classList.remove('hidden');
+        document.getElementById('printModal').classList.add('flex');
+        
+        document.getElementById('printerSelect').value = printerConfig.defaultPrinter;
+        updateTicketSize(printerConfig.paperWidth);
+    }
+
+    function closePrintModal() {
+        document.getElementById('printModal').classList.add('hidden');
+        document.getElementById('printModal').classList.remove('flex');
+        currentOrderData = null;
+    }
+
+    function generateTicketPreview() {
+        if (!currentOrderData) return;
+        
+        const isTakeaway = currentOrderData.type === 'takeaway';
+        const now = new Date();
+        
+        const ticketHTML = `
+            <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 10px;">
+                <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">LA EDITORIAL CULINARIA</div>
+                <div style="font-size: 10px; margin-top: 5px;">
+                    ${isTakeaway ? '** PEDIDO PARA LLEVAR **' : '** COMANDA COCINA **'}<br>
+                    ${now.toLocaleDateString('es-CL')}
+                </div>
+            </div>
+            
+            <div style="margin: 8px 0; border-bottom: 1px solid #ccc; padding-bottom: 8px;">
+                <div style="display: flex; justify-content: space-between; margin: 4px 0;">
+                    <span><strong>${isTakeaway ? 'PEDIDO:' : 'MESA:'}</strong></span>
+                    <span>${currentOrderData.reference}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 4px 0;">
+                    <span><strong>HORA:</strong></span>
+                    <span>${now.toLocaleTimeString('es-CL')}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin: 4px 0;">
+                    <span><strong>ID:</strong></span>
+                    <span>#${currentOrderData.id}</span>
+                </div>
+            </div>
+            
+            <div style="margin: 10px 0; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+                <div style="border-bottom: 1px dashed #000; margin-bottom: 8px; padding-bottom: 4px; font-weight: bold;">
+                    <span style="display: inline-block; width: 30px;">CANT</span>
+                    <span>DESCRIPCIÓN</span>
+                </div>
+                ${currentOrderData.items.map(item => `
+                    <div style="margin: 6px 0;">
+                        <span style="font-weight: bold; display: inline-block; width: 30px;">${item.quantity}x</span>
+                        <span style="font-weight: bold;">${item.name}</span>
+                    </div>
+                `).join('')}
+            </div>
+            
+            <div style="text-align: right; font-size: 14px; font-weight: bold; margin-top: 10px; border-top: 2px solid #000; padding-top: 10px;">
+                TOTAL: $${parseFloat(currentOrderData.total).toFixed(2)}
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px; font-size: 10px; border-top: 2px dashed #000; padding-top: 10px;">
+                ${isTakeaway ? 'Retirar en mostrador' : 'Servir en mesa'}<br>
+                Gracias por su preferencia<br>
+                --- FIN DEL TICKET ---
+            </div>
+        `;
+        
+        document.getElementById('ticketPreview').innerHTML = ticketHTML;
+    }
+
+    async function scanUSBPrinters() {
+        const scanBtn = document.querySelector('button[onclick="scanUSBPrinters()"]');
+        const icon = document.getElementById('scanIcon');
+        const select = document.getElementById('usbPrintersGroup');
+        
+        scanBtn.classList.add('opacity-50', 'cursor-wait');
+        icon.textContent = 'sync';
+        icon.classList.add('animate-spin');
+        
+        try {
+            if (!navigator.usb) {
+                showNotification('WebUSB no soportado. Usa Chrome/Edge.', 'error');
+                return;
+            }
+            
+            const device = await navigator.usb.requestDevice({
+                filters: [
+                    { classCode: 7 },
+                    { vendorId: 0x04b8 },
+                    { vendorId: 0x0519 },
+                    { vendorId: 0x0dd4 },
+                    { vendorId: 0x1fc9 },
+                    { vendorId: 0x0922 },
+                    { vendorId: 0x0ef4 }
+                ]
+            });
+            
+            if (device) {
+                const printerId = `usb-${device.vendorId}-${device.productId}`;
+                const printerName = `🖨️ ${device.productName || 'Impresora USB'}`;
+                
+                availablePrinters.push({
+                    id: printerId,
+                    name: printerName,
+                    device: device,
+                    type: 'usb'
+                });
+                
+                const existingOption = select.querySelector('option[value=""]');
+                if (existingOption) existingOption.remove();
+                
+                const option = document.createElement('option');
+                option.value = printerId;
+                option.textContent = printerName;
+                select.appendChild(option);
+                
+                document.getElementById('printerSelect').value = printerId;
+                showNotification(`Impresora detectada: ${device.productName}`, 'success');
+            }
+        } catch (error) {
+            console.error('Error USB:', error);
+            if (error.name !== 'NotFoundError') {
+                showNotification('Error al buscar dispositivos USB', 'error');
+            }
+        } finally {
+            scanBtn.classList.remove('opacity-50', 'cursor-wait');
+            icon.textContent = 'usb';
+            icon.classList.remove('animate-spin');
+        }
+    }
+
+    function updateTicketSize(size) {
+        const ticket = document.getElementById('ticketPreview');
+        const sizes = {
+            '58mm': '58mm',
+            '80mm': '80mm',
+            '76mm': '76mm',
+            'default': '80mm'
+        };
+        ticket.style.width = sizes[size] || '80mm';
+        ticket.style.fontSize = size === '58mm' ? '11px' : '12px';
+    }
+
+    function executePrint() {
+        const printerSelect = document.getElementById('printerSelect').value;
+        
+        if (printerSelect.startsWith('usb-')) {
+            printUSB(printerSelect);
+        } else if (printerSelect === '58mm' || printerSelect === '80mm' || printerSelect === '76mm') {
+            updateTicketSize(printerSelect);
+            setTimeout(() => window.print(), 100);
+        } else {
+            window.print();
+        }
+        
+        printerConfig.defaultPrinter = printerSelect;
+        localStorage.setItem('printerConfig', JSON.stringify(printerConfig));
+    }
+
+    async function printUSB(printerId) {
+        showNotification('Enviando a impresora USB...', 'success');
+        
+        const printer = availablePrinters.find(p => p.id === printerId);
+        if (printer && printer.device) {
+            try {
+                await printer.device.open();
+                if (printer.device.configuration === null) {
+                    await printer.device.selectConfiguration(1);
+                }
+                
+                showNotification('Conectado. Usando impresión del sistema...', 'success');
+                setTimeout(() => window.print(), 500);
+                
+            } catch (error) {
+                console.error('Error USB:', error);
+                showNotification('Error USB, usando impresión del sistema', 'error');
+                window.print();
+            }
+        }
+    }
+
+    function configurePrinter() {
+        document.getElementById('configPrinterName').value = printerConfig.name || '';
+        document.getElementById('configPaperWidth').value = printerConfig.paperWidth;
+        document.getElementById('configConnection').value = printerConfig.connection;
+        document.getElementById('configAutoPrint').checked = printerConfig.autoPrint;
+        
+        document.getElementById('printerConfigModal').classList.remove('hidden');
+        document.getElementById('printerConfigModal').classList.add('flex');
+    }
+
+    function closePrinterConfig() {
+        document.getElementById('printerConfigModal').classList.add('hidden');
+        document.getElementById('printerConfigModal').classList.remove('flex');
+    }
+
+    function savePrinterConfig() {
+        printerConfig = {
+            name: document.getElementById('configPrinterName').value,
+            paperWidth: document.getElementById('configPaperWidth').value,
+            connection: document.getElementById('configConnection').value,
+            autoPrint: document.getElementById('configAutoPrint').checked,
+            defaultPrinter: document.getElementById('printerSelect').value
+        };
+        
+        localStorage.setItem('printerConfig', JSON.stringify(printerConfig));
+        updateTicketSize(printerConfig.paperWidth);
+        closePrinterConfig();
+        showNotification('Configuración guardada', 'success');
+    }
+
+    // Event listeners
+    document.getElementById('printerSelect')?.addEventListener('change', function(e) {
+        if (['58mm', '80mm', '76mm'].includes(e.target.value)) {
+            updateTicketSize(e.target.value);
+        }
+    });
+
+    document.getElementById('printModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closePrintModal();
+    });
+
+    document.getElementById('printerConfigModal')?.addEventListener('click', function(e) {
+        if (e.target === this) closePrinterConfig();
+    });
+
+    // Cargar impresoras USB previamente autorizadas
+    if (navigator.usb) {
+        navigator.usb.getDevices().then(devices => {
+            const select = document.getElementById('usbPrintersGroup');
+            const loadingOption = select.querySelector('option[value=""]');
+            if (loadingOption) loadingOption.remove();
+            
+            devices.forEach(device => {
+                const printerId = `usb-${device.vendorId}-${device.productId}`;
+                const option = document.createElement('option');
+                option.value = printerId;
+                option.textContent = `🖨️ ${device.productName || 'Impresora USB'} (Conectada)`;
+                select.appendChild(option);
+                
+                availablePrinters.push({
+                    id: printerId,
+                    name: device.productName,
+                    device: device,
+                    type: 'usb'
+                });
+            });
+        });
+    }
 </script>
 
 <style>
@@ -531,6 +965,46 @@
     }
     .scale-110 {
         transform: scale(1.1);
+    }
+    
+    /* Estilos de impresión */
+    @media print {
+        @page {
+            margin: 0;
+            size: 80mm auto;
+        }
+        
+        body * {
+            visibility: hidden !important;
+        }
+        
+        #ticketPreview, #ticketPreview * {
+            visibility: visible !important;
+        }
+        
+        #ticketPreview {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 80mm !important;
+            box-shadow: none !important;
+            padding: 5mm !important;
+            background: white !important;
+        }
+        
+        #printModal,
+        .no-print {
+            display: none !important;
+        }
+    }
+    
+    .animate-spin {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
 </style>
 {% endblock %}
