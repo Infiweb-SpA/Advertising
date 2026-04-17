@@ -332,7 +332,7 @@
         </div>
         
         <div class="flex-1 overflow-auto p-8 bg-gray-50 flex justify-center">
-            <div id="ticketPreview" class="bg-white p-6 shadow-lg" style="width: 80mm; min-height: 200px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.4;">
+            <div id="ticketPreview" class="bg-white p-6 shadow-lg" style="width: 80mm; min-height: 200px; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.4;">
                 <!-- Contenido dinámico -->
             </div>
         </div>
@@ -643,7 +643,6 @@
             items = JSON.parse(itemsData || '[]');
         } catch (e) {
             console.error('Error parsing items:', e);
-            // Fallback: extraer del DOM
             const detailRows = row.querySelectorAll('td:nth-child(2) .flex.justify-between');
             detailRows.forEach(detailRow => {
                 const spans = detailRow.querySelectorAll('span');
@@ -811,46 +810,82 @@
             '76mm': '76mm',
             'default': '80mm'
         };
-        ticket.style.width = sizes[size] || '80mm';
+        const width = sizes[size] || '80mm';
+        ticket.style.width = width;
         ticket.style.fontSize = size === '58mm' ? '11px' : '12px';
     }
 
     function executePrint() {
         const printerSelect = document.getElementById('printerSelect').value;
         
-        if (printerSelect.startsWith('usb-')) {
-            printUSB(printerSelect);
-        } else if (printerSelect === '58mm' || printerSelect === '80mm' || printerSelect === '76mm') {
+        // Actualizar tamaño si es necesario
+        if (printerSelect === '58mm' || printerSelect === '80mm' || printerSelect === '76mm') {
             updateTicketSize(printerSelect);
-            setTimeout(() => window.print(), 100);
-        } else {
-            window.print();
         }
         
+        // Guardar configuración
         printerConfig.defaultPrinter = printerSelect;
         localStorage.setItem('printerConfig', JSON.stringify(printerConfig));
-    }
-
-    async function printUSB(printerId) {
-        showNotification('Enviando a impresora USB...', 'success');
         
-        const printer = availablePrinters.find(p => p.id === printerId);
-        if (printer && printer.device) {
-            try {
-                await printer.device.open();
-                if (printer.device.configuration === null) {
-                    await printer.device.selectConfiguration(1);
-                }
-                
-                showNotification('Conectado. Usando impresión del sistema...', 'success');
-                setTimeout(() => window.print(), 500);
-                
-            } catch (error) {
-                console.error('Error USB:', error);
-                showNotification('Error USB, usando impresión del sistema', 'error');
-                window.print();
-            }
-        }
+        // Generar el ticket para impresión
+        const previewContent = document.getElementById('ticketPreview').innerHTML;
+        const width = printerSelect === '58mm' ? '58mm' : (printerSelect === '76mm' ? '76mm' : '80mm');
+        const fontSize = printerSelect === '58mm' ? '11px' : '12px';
+        
+        // Crear ventana de impresión dedicada
+        const printWindow = window.open('', '_blank', 'width=400,height=600');
+        
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Ticket #${currentOrderData.id}</title>
+                <style>
+                    @page {
+                        margin: 0;
+                        size: ${width} auto;
+                    }
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        font-family: 'Courier New', Courier, monospace;
+                        font-size: ${fontSize};
+                        line-height: 1.4;
+                        color: #000;
+                        background: #fff;
+                    }
+                    #ticket {
+                        width: ${width};
+                        padding: 5mm;
+                        box-sizing: border-box;
+                    }
+                    * {
+                        color: #000 !important;
+                        background: #fff !important;
+                    }
+                </style>
+            </head>
+            <body>
+                <div id="ticket">
+                    ${previewContent}
+                </div>
+                <script>
+                    window.onload = function() {
+                        setTimeout(function() {
+                            window.print();
+                            setTimeout(function() {
+                                window.close();
+                            }, 1000);
+                        }, 200);
+                    };
+                <\/script>
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        
+        showNotification('Ventana de impresión abierta', 'success');
     }
 
     function configurePrinter() {
@@ -965,37 +1000,6 @@
     }
     .scale-110 {
         transform: scale(1.1);
-    }
-    
-    /* Estilos de impresión */
-    @media print {
-        @page {
-            margin: 0;
-            size: 80mm auto;
-        }
-        
-        body * {
-            visibility: hidden !important;
-        }
-        
-        #ticketPreview, #ticketPreview * {
-            visibility: visible !important;
-        }
-        
-        #ticketPreview {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 80mm !important;
-            box-shadow: none !important;
-            padding: 5mm !important;
-            background: white !important;
-        }
-        
-        #printModal,
-        .no-print {
-            display: none !important;
-        }
     }
     
     .animate-spin {
