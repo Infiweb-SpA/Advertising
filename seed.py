@@ -1,33 +1,29 @@
 # seed.py
-# Ejecutar una vez para poblar la base de datos con categorías, productos, mesas y un usuario administrador
-
 import os
 import sys
 from werkzeug.security import generate_password_hash
 
-# Añadir el directorio actual al path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from app import create_app
 from app.extensions import db
 from app.models import Category, Product, Table, User
 
-def seed_database():
-    """Función principal para poblar la base de datos"""
-    
-    print("🌱 Iniciando seeding de la base de datos...")
-    
-    app = create_app()
-    
-    with app.app_context():
-        # Crear tablas si no existen
-        db.create_all()
-        print("✅ Tablas verificadas/creadas")
 
-        # 1. Crear usuario administrador si no existe
-        admin_email = os.environ.get('ADMIN_EMAIL', 'admin@example.com')
-        admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
-        admin_password = os.environ.get('ADMIN_PASSWORD', 'admin123')
+def seed_database():
+    print("🌱 Iniciando seeding Hard Bar...")
+
+    app = create_app()
+
+    with app.app_context():
+        db.create_all()
+
+        # ==============================
+        # USUARIO ADMIN
+        # ==============================
+        admin_email = "admin@hardbar.cl"
+        admin_username = "admin"
+        admin_password = "admin123"
 
         existing_admin = User.query.filter(
             (User.email == admin_email) | (User.username == admin_username)
@@ -42,113 +38,151 @@ def seed_database():
             )
             db.session.add(admin_user)
             db.session.commit()
-            print(f"✅ Usuario administrador creado: {admin_username} / {admin_password}")
-        else:
-            # Si ya existe pero no es admin, lo actualizamos
-            if not existing_admin.is_admin:
-                existing_admin.is_admin = True
-                db.session.commit()
-                print(f"✅ Usuario '{existing_admin.username}' ahora tiene permisos de administrador.")
-            else:
-                print(f"ℹ️ El usuario administrador '{existing_admin.username}' ya existe.")
+            print("✅ Admin creado")
 
-        # 2. Categorías
+        # ==============================
+        # CATEGORÍAS
+        # ==============================
         categorias = [
-            {'name': 'Entradas', 'type': 'comida'},
-            {'name': 'Platos Fuertes', 'type': 'comida'},
-            {'name': 'Postres', 'type': 'comida'},
-            {'name': 'Bebidas', 'type': 'bebida'},
-            {'name': 'Cócteles', 'type': 'bebida'},
-            {'name': 'Vinos', 'type': 'bebida'},
+            {"name": "Seminarios de Compartir", "type": "comida"},
+            {"name": "Combos Hard Bar", "type": "comida"},
+            {"name": "Combos Completos", "type": "comida"},
+            {"name": "Desayunos", "type": "comida"},
+            {"name": "Arma tu Desayuno", "type": "comida"},
+            {"name": "Platos de la Casa", "type": "comida"},
+            {"name": "Menú de Niño", "type": "comida"},
+            {"name": "Coctelería", "type": "bebida"},
+            {"name": "Cervezas", "type": "bebida"},
+            {"name": "Vinos y Espumantes", "type": "bebida"},
+            {"name": "Destilados", "type": "bebida"},
         ]
 
-        for cat_data in categorias:
-            cat = Category.query.filter_by(name=cat_data['name']).first()
-            if not cat:
-                cat = Category(**cat_data)
-                db.session.add(cat)
+        for cat in categorias:
+            if not Category.query.filter_by(name=cat["name"]).first():
+                db.session.add(Category(**cat))
+
         db.session.commit()
-        print("✅ Categorías creadas/verificadas.")
 
-        # Obtener IDs de categorías
-        cat_entradas = Category.query.filter_by(name='Entradas').first()
-        cat_platos = Category.query.filter_by(name='Platos Fuertes').first()
-        cat_postres = Category.query.filter_by(name='Postres').first()
-        cat_bebidas = Category.query.filter_by(name='Bebidas').first()
-        cat_cocteles = Category.query.filter_by(name='Cócteles').first()
-        cat_vinos = Category.query.filter_by(name='Vinos').first()
+        def cat(nombre):
+            return Category.query.filter_by(name=nombre).first()
 
-        # 3. Productos de muestra
+        # ==============================
+        # PRODUCTOS
+        # ==============================
+
         productos = [
-            # Entradas
-            {'name': 'Pan de Masa Madre con Mantequilla de Hierbas', 'description': 'Pan artesanal de fermentación lenta, servido con mantequilla batida de romero y ajo.', 'price': 6.50, 'category': cat_entradas, 'image_url': 'https://images.pexels.com/photos/209206/pexels-photo-209206.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': True, 'is_offer': False},
-            {'name': 'Aceitunas Marinadas', 'description': 'Mezcla de aceitunas griegas con piel de naranja, tomillo y aceite de oliva virgen extra.', 'price': 5.00, 'category': cat_entradas, 'image_url': 'https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            {'name': 'Croquetas de Jamón Ibérico', 'description': 'Croquetas cremosas de jamón ibérico con un toque de nuez moscada.', 'price': 8.00, 'category': cat_entradas, 'image_url': 'https://images.pexels.com/photos/566566/pexels-photo-566566.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            # Platos Fuertes
-            {'name': 'Risotto de Hongos Silvestres', 'description': 'Arroz arbóreo con mezcla de hongos de temporada, queso parmesano y aceite de trufa.', 'price': 18.50, 'category': cat_platos, 'image_url': 'https://images.pexels.com/photos/803963/pexels-photo-803963.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': True, 'is_offer': False},
-            {'name': 'Salmón a la Parrilla', 'description': 'Filete de salmón orgánico con costra de hierbas, servido con puré de coliflor y espárragos.', 'price': 22.00, 'category': cat_platos, 'image_url': 'https://images.pexels.com/photos/46239/salmon-dish-food-meal-46239.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            {'name': 'Hamburguesa Artesanal', 'description': 'Blend de res angus, queso cheddar añejo, cebolla caramelizada, pepinillos y salsa secreta en pan brioche.', 'price': 15.50, 'category': cat_platos, 'image_url': 'https://images.pexels.com/photos/2983098/pexels-photo-2983098.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            {'name': 'Pasta al Pesto de Albahaca', 'description': 'Linguini fresco con pesto genovés, tomates cherry confitados y piñones tostados.', 'price': 14.00, 'category': cat_platos, 'image_url': 'https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            # Postres
-            {'name': 'Tarta de Chocolate y Caramelo Salado', 'description': 'Base de galleta de cacao, ganache de chocolate oscuro y caramelo salado.', 'price': 7.50, 'category': cat_postres, 'image_url': 'https://images.pexels.com/photos/291528/pexels-photo-291528.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': True},
-            {'name': 'Crumble de Manzana', 'description': 'Manzanas asadas con canela y crumble de avena, servido con helado de vainilla.', 'price': 6.50, 'category': cat_postres, 'image_url': 'https://images.pexels.com/photos/2067396/pexels-photo-2067396.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            # Bebidas
-            {'name': 'Limonada de Jengibre y Menta', 'description': 'Refrescante limonada casera con jengibre fresco y menta.', 'price': 3.50, 'category': cat_bebidas, 'image_url': 'https://images.pexels.com/photos/4110226/pexels-photo-4110226.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            {'name': 'Té Helado de Hibisco', 'description': 'Infusión fría de flor de jamaica con un toque de limón.', 'price': 3.00, 'category': cat_bebidas, 'image_url': 'https://images.pexels.com/photos/5946987/pexels-photo-5946987.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            {'name': 'Café de Especialidad', 'description': 'Café de origen único preparado en prensa francesa.', 'price': 2.80, 'category': cat_bebidas, 'image_url': 'https://images.pexels.com/photos/302899/pexels-photo-302899.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            # Cócteles
-            {'name': 'Rosemary Smoked Old Fashioned', 'description': 'Bourbon infusionado con humo de romero, azúcar morena y amargo de angostura.', 'price': 12.00, 'category': cat_cocteles, 'image_url': 'https://images.pexels.com/photos/5947038/pexels-photo-5947038.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': True, 'is_offer': False},
-            {'name': 'Gin Tónica de Pepino y Eneldo', 'description': 'Ginebra premium, tónica artesanal, pepino y eneldo fresco.', 'price': 11.00, 'category': cat_cocteles, 'image_url': 'https://images.pexels.com/photos/5947068/pexels-photo-5947068.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            {'name': 'Margarita de Mango y Habanero', 'description': 'Tequila reposado, licor de naranja, puré de mango y un toque picante.', 'price': 10.50, 'category': cat_cocteles, 'image_url': 'https://images.pexels.com/photos/5947108/pexels-photo-5947108.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            # Vinos
-            {'name': 'Vino Tinto Malbec', 'description': 'Copa de Malbec argentino, notas de ciruela y vainilla.', 'price': 8.00, 'category': cat_vinos, 'image_url': 'https://images.pexels.com/photos/2912108/pexels-photo-2912108.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
-            {'name': 'Vino Blanco Sauvignon Blanc', 'description': 'Fresco y cítrico, ideal para mariscos.', 'price': 7.50, 'category': cat_vinos, 'image_url': 'https://images.pexels.com/photos/5947005/pexels-photo-5947005.jpeg?auto=compress&cs=tinysrgb&w=600', 'is_signature': False, 'is_offer': False},
+
+            # ================= SEMINARIOS =================
+            {"name": "Tabla Hard Bar (2 personas)", "price": 16990, "category": cat("Seminarios de Compartir")},
+            {"name": "Tabla Hard Bar (4 personas)", "price": 22990, "category": cat("Seminarios de Compartir")},
+
+            {"name": "Tabla Suprem (2 personas)", "price": 16990, "category": cat("Seminarios de Compartir")},
+            {"name": "Tabla Suprem (4 personas)", "price": 22990, "category": cat("Seminarios de Compartir")},
+
+            {"name": "Super Hard Premium (2 personas)", "price": 20990, "category": cat("Seminarios de Compartir")},
+            {"name": "Super Hard Premium (4 personas)", "price": 36990, "category": cat("Seminarios de Compartir")},
+
+            {"name": "Papas Bravas", "price": 10990, "category": cat("Seminarios de Compartir")},
+            {"name": "Chorrillana Tradicional", "price": 15990, "category": cat("Seminarios de Compartir")},
+            {"name": "Tabla Vegetariana", "price": 10990, "category": cat("Seminarios de Compartir")},
+
+            # ================= COMBOS =================
+            {"name": "Hamburguesa Hard Bar", "price": 6990, "category": cat("Combos Hard Bar")},
+            {"name": "Hamburguesa Italiana", "price": 6590, "category": cat("Combos Hard Bar")},
+            {"name": "Hamburguesa Posgrado", "price": 7990, "category": cat("Combos Hard Bar")},
+            {"name": "Mechada Italiana", "price": 6990, "category": cat("Combos Hard Bar")},
+            {"name": "Mechada Chacarera", "price": 7990, "category": cat("Combos Hard Bar")},
+            {"name": "Mechada Luco", "price": 5990, "category": cat("Combos Hard Bar")},
+
+            # ================= COMBOS COMPLETOS =================
+            {"name": "Hot Dog Completo", "price": 3590, "category": cat("Combos Completos")},
+            {"name": "Italiano Completo", "price": 3990, "category": cat("Combos Completos")},
+            {"name": "Dinámico Completo", "price": 4990, "category": cat("Combos Completos")},
+            {"name": "Hass Mechada", "price": 4990, "category": cat("Combos Completos")},
+
+            # ================= DESAYUNOS =================
+            {"name": "Desayuno Hard Bar", "price": 6990, "category": cat("Desayunos")},
+            {"name": "Desayuno Campestre", "price": 5990, "category": cat("Desayunos")},
+            {"name": "Desayuno Premium", "price": 7990, "category": cat("Desayunos")},
+
+            # ================= ARMA TU DESAYUNO =================
+            {"name": "Té o Café clásico", "price": 1990, "category": cat("Arma tu Desayuno")},
+            {"name": "Café máquina chico", "price": 2390, "category": cat("Arma tu Desayuno")},
+            {"name": "Café máquina mediano", "price": 2690, "category": cat("Arma tu Desayuno")},
+            {"name": "Café máquina grande", "price": 2990, "category": cat("Arma tu Desayuno")},
+            {"name": "Jugo natural", "price": 3490, "category": cat("Arma tu Desayuno")},
+            {"name": "Bebida Express", "price": 1990, "category": cat("Arma tu Desayuno")},
+            {"name": "Trozo de Torta", "price": 3490, "category": cat("Arma tu Desayuno")},
+            {"name": "Pie de Limón / Frambuesa", "price": 2590, "category": cat("Arma tu Desayuno")},
+            {"name": "Waffles", "price": 2990, "category": cat("Arma tu Desayuno")},
+            {"name": "Empanada de Horno", "price": 2990, "category": cat("Arma tu Desayuno")},
+
+            # ================= PLATOS DE LA CASA =================
+            {"name": "Cordero Escabechado", "price": 15990, "category": cat("Platos de la Casa")},
+            {"name": "Carne de Res al Vino", "price": 15990, "category": cat("Platos de la Casa")},
+            {"name": "Trucha a la Plancha", "price": 14990, "category": cat("Platos de la Casa")},
+            {"name": "Trucha Cordillerana", "price": 15990, "category": cat("Platos de la Casa")},
+            {"name": "Filete de Pollo a la Plancha", "price": 10900, "category": cat("Platos de la Casa")},
+            {"name": "Chuleta a la Plancha", "price": 12990, "category": cat("Platos de la Casa")},
+            {"name": "Chuleta Rosa Mosqueta", "price": 13900, "category": cat("Platos de la Casa")},
+            {"name": "Pastel de Choclo", "price": 10900, "category": cat("Platos de la Casa")},
+            {"name": "Espagueti con Salsa", "price": 7990, "category": cat("Platos de la Casa")},
+            {"name": "Milanesa de Pollo", "price": 11990, "category": cat("Platos de la Casa")},
+
+            # ================= MENU NIÑO =================
+            {"name": "Espagueti con Vienesa y Huevo", "price": 4990, "category": cat("Menú de Niño")},
+            {"name": "Nuggets con Papas", "price": 4990, "category": cat("Menú de Niño")},
+
+            # ================= CERVEZAS =================
+            {"name": "Shop Stella / Heineken", "price": 3990, "category": cat("Cervezas")},
+            {"name": "Cerveza Artesanal Llaima", "price": 4990, "category": cat("Cervezas")},
+            {"name": "Cerveza Corona", "price": 3990, "category": cat("Cervezas")},
+            {"name": "Cerveza Royal", "price": 3500, "category": cat("Cervezas")},
+
+            # ================= VINOS =================
+            {"name": "Copa Espumante", "price": 3690, "category": cat("Vinos y Espumantes")},
+            {"name": "Botella Espumante", "price": 12990, "category": cat("Vinos y Espumantes")},
+            {"name": "Vino Reserva", "price": 14990, "category": cat("Vinos y Espumantes")},
+            {"name": "Vino Gran Reserva", "price": 28990, "category": cat("Vinos y Espumantes")},
+            {"name": "Copa Vino Selección", "price": 2990, "category": cat("Vinos y Espumantes")},
+
+            # ================= COCTELERÍA =================
+            {"name": "Ramazzotti Rosato", "price": 5990, "category": cat("Coctelería")},
+            {"name": "Ramazzotti Violeta", "price": 6490, "category": cat("Coctelería")},
+            {"name": "Aperol Spritz", "price": 5990, "category": cat("Coctelería")},
+            {"name": "Margarita", "price": 5490, "category": cat("Coctelería")},
+            {"name": "Piña Colada", "price": 4990, "category": cat("Coctelería")},
+            {"name": "Tequila Sunrise", "price": 5490, "category": cat("Coctelería")},
+            {"name": "Blue Lagoon", "price": 5490, "category": cat("Coctelería")},
+            {"name": "Mojito", "price": 4990, "category": cat("Coctelería")},
+            {"name": "Borgoña", "price": 4500, "category": cat("Coctelería")},
+
+            # ================= DESTILADOS =================
+            {"name": "Pisco + Bebida", "price": 5990, "category": cat("Destilados")},
+            {"name": "Whisky + Bebida", "price": 6990, "category": cat("Destilados")},
+            {"name": "Whisky a la Roca", "price": 4990, "category": cat("Destilados")},
+            {"name": "Vodka Naranja", "price": 3990, "category": cat("Destilados")},
+            {"name": "Shot Tequila (3)", "price": 6990, "category": cat("Destilados")},
         ]
 
-        productos_creados = 0
-        for prod_data in productos:
-            prod = Product.query.filter_by(name=prod_data['name']).first()
-            if not prod:
-                prod = Product(**prod_data)
-                db.session.add(prod)
-                productos_creados += 1
-        db.session.commit()
-        print(f"✅ {productos_creados} productos de muestra creados/verificados.")
+        creados = 0
+        for prod in productos:
+            if not Product.query.filter_by(name=prod["name"]).first():
+                db.session.add(Product(**prod))
+                creados += 1
 
-        # 4. Crear mesas de ejemplo (1 al 10)
-        mesas_creadas = 0
-        for i in range(1, 11):
-            if not Table.query.filter_by(number=i).first():
-                db.session.add(Table(number=i, capacity=4))
-                mesas_creadas += 1
         db.session.commit()
-        print(f"✅ {mesas_creadas} mesas creadas/verificadas (1-10).")
 
-        # Resumen final
-        print("\n" + "="*50)
-        print("🎉 BASE DE DATOS POBLADA EXITOSAMENTE")
-        print("="*50)
-        print(f"📊 Estadísticas:")
-        print(f"   - Usuarios: {User.query.count()}")
-        print(f"   - Categorías: {Category.query.count()}")
-        print(f"   - Productos: {Product.query.count()}")
-        print(f"   - Mesas: {Table.query.count()}")
-        print("\n🔐 Credenciales de administrador:")
-        print(f"   Email: {admin_email}")
-        print(f"   Usuario: {admin_username}")
-        print(f"   Contraseña: {admin_password}")
-        print("\n📍 Puedes iniciar sesión y acceder a /admin/gestion-pedidos")
-        print("="*50)
+        print(f"✅ {creados} productos creados.")
+        print("🎉 Base de datos Hard Bar lista!")
+
 
 def main():
-    """Punto de entrada principal"""
     try:
         seed_database()
     except Exception as e:
-        print(f"❌ Error durante el seeding: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        print("❌ Error:", e)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
